@@ -1,0 +1,31 @@
+{
+  "name": "lucide-domino-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test tests/*.test.js",
+    "check:cases": "node scripts/case-check.mjs",
+    "check:interactions": "node scripts/case-interactions.mjs",
+    "check:superforms": "node scripts/superforms-check.mjs",
+    "check:personal": "node scripts/cabinet-about-check.mjs",
+    "check:files": "node scripts/project-files-check.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/manrope": "^5.2.8",
+    "gsap": "^3.14.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.3",
+    "@vitejs/plugin-react": "^5.1.4",
+    "esbuild": "^0.28.2",
+    "happy-dom": "^21.0.1",
+    "vite": "^7.3.1"
+  }
+}

@@ -1,0 +1,49 @@
+[data-case='notaprompt'] .case-hero { grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); }
+[data-case='notaprompt'] .case-hero h1 { font-size: clamp(40px, 5.2vw, 78px); }
+@media (max-width: 900px) { [data-case='notaprompt'] .case-hero { grid-template-columns: 1fr; } }
+[data-case='notaprompt'] .np-sim { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(28px, 4vw, 72px); align-items: start; }
+[data-case='notaprompt'] .np-sim-stage { position: sticky; top: 96px; }
+[data-case='notaprompt'] .np-sim-stage .case-stage-block { height: clamp(420px, 74vh, 760px); }
+[data-case='notaprompt'] .np-panel { display: grid; gap: 28px; }
+[data-case='notaprompt'] .np-note { background: var(--blush); padding: 18px 22px; font-size: 16px; line-height: 1.5; margin: 0 0 clamp(28px, 4vh, 48px); max-width: 70ch; }
+[data-case='notaprompt'] .np-card { background: var(--paper); padding: 20px 24px; min-height: 132px; }
+[data-case='notaprompt'] .np-card h3 { font-size: 22px; letter-spacing: -.03em; margin: 0 0 6px; font-weight: 640; }
+[data-case='notaprompt'] .np-card p { margin: 0; font-size: 16px; line-height: 1.5; }
+[data-case='notaprompt'] .np-bars { display: grid; gap: 10px; margin-top: 12px; }
+[data-case='notaprompt'] .np-bar { display: grid; grid-template-columns: 96px 1fr 44px; gap: 12px; align-items: center; font-size: 15px; }
+[data-case='notaprompt'] .np-bar i { display: block; height: 10px; background: var(--stone); position: relative; }
+[data-case='notaprompt'] .np-bar i b { position: absolute; inset: 0 auto 0 0; background: var(--ink); }
+[data-case='notaprompt'] .np-bar i b.is-accent { background: var(--accent); }
+[data-case='notaprompt'] .np-bar span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+[data-case='notaprompt'] .np-field { display: grid; gap: 8px; }
+[data-case='notaprompt'] .np-field label { display: flex; justify-content: space-between; font-size: 16px; font-weight: 620; }
+[data-case='notaprompt'] .np-field label span { font-weight: 520; font-variant-numeric: tabular-nums; }
+[data-case='notaprompt'] .np-field small { font-size: 15px; color: var(--muted); line-height: 1.45; }
+[data-case='notaprompt'] input[type='range'] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; margin: 0; cursor: pointer; }
+[data-case='notaprompt'] input[type='range']::-webkit-slider-runnable-track { height: 10px; background: var(--stone); border-radius: 99px; }
+[data-case='notaprompt'] input[type='range']::-moz-range-track { height: 10px; background: var(--stone); border-radius: 99px; }
+[data-case='notaprompt'] input[type='range']::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -9px; border-radius: 50%; background: var(--accent); }
+[data-case='notaprompt'] input[type='range']::-moz-range-thumb { width: 28px; height: 28px; border: 0; border-radius: 50%; background: var(--accent); }
+[data-case='notaprompt'] .tone-paper .np-card { background: #fff; }
+[data-case='notaprompt'] .np-run { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+[data-case='notaprompt'] .np-run .case-button { padding: 14px 24px; }
+[data-case='notaprompt'] .np-run .case-button[disabled] { opacity: .45; cursor: default; transform: none; }
+[data-case='notaprompt'] .np-chart { background: var(--paper); padding: 20px 20px 14px; }
+[data-case='notaprompt'] .np-chart svg { width: 100%; height: auto; display: block; }
+[data-case='notaprompt'] .np-chart svg text { font-family: 'Manrope Variable', sans-serif; font-size: 14px; fill: #6b6a64; }
+[data-case='notaprompt'] .np-readout { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
+[data-case='notaprompt'] .np-readout strong { font-size: clamp(44px, 5vw, 68px); letter-spacing: -.05em; font-weight: 560; line-height: 1; font-variant-numeric: tabular-nums; }
+[data-case='notaprompt'] .np-readout span { font-size: 16px; }
+[data-case='notaprompt'] .np-legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 15px; margin-top: 4px; }
+[data-case='notaprompt'] .np-legend span::before { content: ''; display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; background: var(--c); }
+[data-case='notaprompt'] .np-rule { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: center; }
+[data-case='notaprompt'] .np-rule svg { width: 100%; height: auto; display: block; background: #fff; padding: 12px; }
+[data-case='notaprompt'] .np-rule svg text { font-family: 'Manrope Variable', sans-serif; font-size: 15px; fill: #30312e; }
+[data-case='notaprompt'] .np-stack { display: grid; gap: clamp(20px, 3vw, 40px); }
+[data-case='notaprompt'] .np-hero-fallback { width: min(70%, 420px); }
+@media (max-width: 900px) {
+  [data-case='notaprompt'] .np-sim, [data-case='notaprompt'] .np-rule { grid-template-columns: 1fr; }
+  [data-case='notaprompt'] .np-sim-stage { position: relative; top: 0; }
+  [data-case='notaprompt'] .np-sim-stage .case-stage-block { height: 48svh; min-height: 320px; }
+  [data-case='notaprompt'] .np-bar { grid-template-columns: 84px 1fr 40px; }
+}

@@ -1,0 +1,68 @@
+.personal-page { --personal-display:clamp(58px,7.8vw,112px); --personal-heading:clamp(34px,3.4vw,48px); --personal-lead:24px; --personal-body:18px; --personal-small:14px; --personal-paper:#f0f1ec; --personal-green:#d9dfd3; color:var(--ink); max-width:1600px; margin:auto; }
+.personal-header { display:flex; align-items:center; justify-content:space-between; padding:32px 5%; gap:24px; }
+.personal-name { font-weight:650; font-size:var(--personal-small); }
+.personal-header nav { display:flex; gap:32px; font-size:var(--personal-small); }
+.personal-header [aria-current], .personal-header a:hover { color:#b93c24; }
+.personal-page .skip-link { box-shadow:none; }
+.personal-intro { padding:65px 7% 100px; display:grid; grid-template-columns:1.15fr 1fr; align-items:center; min-height:720px; gap:70px; }
+.personal-intro h1 { font-size:var(--personal-display); line-height:.98; letter-spacing:-.065em; }
+.personal-intro > div > p { font-size:var(--personal-lead); line-height:1.4; letter-spacing:-.03em; margin:32px 0; }
+.personal-read { display:inline-flex; gap:45px; align-items:center; font-size:var(--personal-small); padding:14px 20px; background:var(--personal-green); }
+.personal-read span { transition:transform .3s var(--ease); }
+.personal-read:hover span { transform:translateY(5px); }
+.personal-intro-note { display:block; font-size:var(--personal-small); margin-top:32px; line-height:1.5; }
+.personal-photo { margin:0; }
+.personal-photo img { display:block; width:100%; height:auto; aspect-ratio:4/5; object-fit:cover; }
+.personal-photo-space { background:var(--photo-ground); min-height:420px; aspect-ratio:4/5; padding:38px; display:flex; flex-direction:column; justify-content:space-between; }
+.personal-photo-space > span:first-child { font-size:var(--personal-lead); letter-spacing:-.05em; }
+.personal-photo-space p { max-width:260px; font-size:var(--personal-body); line-height:1.5; }
+.photo-reserved { font-size:var(--personal-small); }
+.personal-photo figcaption { font-size:var(--personal-small); line-height:1.5; padding:18px 0; }
+.personal-portrait { transform:rotate(3deg); animation:personal-photo-in 1s var(--ease) both; }
+.personal-story { display:grid; grid-template-columns:1fr 1.08fr; align-items:start; background:var(--personal-paper); padding:80px 7% 0; gap:10%; scroll-margin-top:30px; }
+.personal-story-stage { position:sticky; top:35px; padding-bottom:35px; }
+.personal-story-stage .personal-photo-space { min-height:340px; max-height:65vh; }
+.personal-stage-frame { animation:personal-crossfade .6s var(--ease) both; }
+.personal-story-stage nav { display:flex; flex-wrap:wrap; gap:6px; padding-top:12px; }
+.personal-story-stage button { min-height:44px; font-size:var(--personal-small); padding:10px 14px; }
+.personal-story-stage [aria-current='step'] { background:#303a31; color:#fff; }
+.personal-page h2 { font-size:var(--personal-heading); font-weight:500; line-height:1.08; letter-spacing:-.055em; margin:0 0 32px; }
+.personal-chapter { padding:22px 0 90px; min-height:650px; scroll-margin-top:35px; }
+.personal-chapter p, .personal-now p { font-size:var(--personal-body); line-height:1.75; margin:0 0 25px; max-width:620px; }
+.personal-chapter .personal-chapter-note { font-size:var(--personal-small); line-height:1.6; margin-top:32px; }
+.personal-competition-section { padding:120px 7%; }
+.personal-competition-heading { display:grid; grid-template-columns:1fr 1.08fr; gap:10%; align-items:start; }
+.personal-competition-heading > p { font-size:var(--personal-body); line-height:1.5; margin:0; max-width:500px; }
+.personal-competition-book { margin-top:60px; display:grid; grid-template-columns:1fr 1.08fr; gap:10%; align-items:start; }
+.personal-competition-book nav { display:flex; flex-direction:column; align-items:stretch; gap:4px; }
+.personal-competition-book button { min-height:48px; padding:13px 18px; text-align:left; font-size:var(--personal-small); transition:transform .25s var(--ease); }
+.personal-competition-book button[aria-pressed='true'] { background:var(--personal-green); }
+.personal-competition-book button:hover { transform:translateX(5px); }
+.personal-competition-note { padding:40px; background:var(--personal-green); transform:rotate(1.5deg); min-height:360px; animation:personal-note-in .5s var(--ease) both; }
+.personal-competition-note > span { font-size:var(--personal-small); line-height:1.6; display:block; }
+.personal-competition-note h3 { font-size:var(--personal-lead); line-height:1.15; letter-spacing:-.04em; font-weight:550; margin:24px 0; }
+.personal-competition-note p { font-size:var(--personal-body); line-height:1.65; }
+.personal-competition-note .personal-competition-result { font-size:var(--personal-body); margin-top:35px; font-weight:550; }
+.personal-music { padding:100px 7%; display:grid; grid-template-columns:1fr 1.08fr; gap:10%; background:#f6f7f5; align-items:center; }
+.personal-music p { font-size:var(--personal-body); line-height:1.65; max-width:450px; }
+.personal-music h2 { font-size:var(--personal-heading); }
+.personal-music .personal-photo { transform:rotate(-3deg); }
+.personal-guitar { width:100%; margin-top:35px; transform:rotate(-8deg); }
+.personal-now { padding:120px 7%; display:grid; grid-template-columns:1fr 1.08fr; gap:10%; }
+.personal-now a { display:inline-flex; min-height:44px; align-items:center; font-size:var(--personal-small); background:var(--personal-green); padding:12px 18px; }
+.personal-hello { margin:0 7% 100px; padding:30px 0; }
+.personal-hello h2 { font-size:var(--personal-display); }
+.personal-hello > p { font-size:var(--personal-body); line-height:1.5; margin:24px 0; }
+.personal-hello > a { display:inline-flex; gap:25px; font-size:var(--personal-lead); letter-spacing:-.04em; padding:10px 0; }
+.personal-hello > div { display:flex; gap:25px; font-size:var(--personal-small); margin-top:28px; }
+.personal-footer { display:flex; justify-content:space-between; gap:24px; padding:32px 7%; background:var(--personal-paper); font-size:var(--personal-small); }
+[data-personal-reveal].personal-visible > * { animation:personal-section-in .8s var(--ease) both; }
+[data-personal-reveal].personal-visible > :nth-child(2) { animation-delay:80ms; }
+[data-personal-reveal].personal-visible > :nth-child(3) { animation-delay:160ms; }
+@keyframes personal-photo-in { from { opacity:0; transform:rotate(7deg) translateY(35px); } to { opacity:1; transform:rotate(3deg) translateY(0); } }
+@keyframes personal-note-in { from { opacity:.3; transform:rotate(-2deg) translateY(14px); } to { opacity:1; transform:rotate(1.5deg) translateY(0); } }
+@keyframes personal-section-in { from { opacity:.2; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+@keyframes personal-crossfade { from { opacity:.2; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+@media(max-width:800px) { .personal-header { padding:24px 6%; } .personal-header nav { gap:18px; font-size:var(--personal-small); } .personal-intro { min-height:600px; padding:60px 6% 75px; gap:35px; } .personal-photo-space { min-height:340px; padding:28px; } .personal-photo-space > span:first-child { font-size:var(--personal-lead); } .personal-story { padding:65px 6% 0; gap:6%; } .personal-chapter { min-height:750px; } .personal-competition-section, .personal-now { padding:80px 6%; } .personal-competition-heading, .personal-competition-book, .personal-music, .personal-now { gap:6%; } .personal-competition-note { padding:28px; } .personal-music { padding:80px 6%; } }
+@media(max-width:600px) { .personal-page { --personal-display:clamp(58px,14vw,84px); } .personal-header { align-items:flex-start; padding:24px; } .personal-header nav { flex-wrap:wrap; justify-content:flex-end; max-width:160px; gap:14px 18px; } .personal-name { max-width:100px; } .personal-intro { grid-template-columns:1fr; padding:46px 24px 64px; gap:54px; } .personal-intro h1 { font-size:var(--personal-display); } .personal-intro > div > p { font-size:var(--personal-body); } .personal-portrait { margin:0 12px; } .personal-photo-space { min-height:320px; } .personal-story { grid-template-columns:1fr; padding:40px 24px 0; gap:32px; } .personal-story-stage { position:relative; top:auto; padding:0; } .personal-story-stage .personal-photo-space { min-height:260px; aspect-ratio:4/3; max-height:none; } .personal-chapter { min-height:0; padding:30px 0 45px; } .personal-chapter p, .personal-now p { font-size:var(--personal-body); } .personal-competition-section, .personal-music, .personal-now { padding:65px 24px; } .personal-competition-heading, .personal-competition-book, .personal-music, .personal-now { grid-template-columns:1fr; gap:30px; } .personal-competition-heading > p { font-size:var(--personal-body); } .personal-competition-book { margin-top:30px; } .personal-competition-book nav { flex-direction:row; flex-wrap:wrap; gap:4px; } .personal-competition-book button { font-size:var(--personal-small); padding:10px 12px; min-height:44px; } .personal-competition-note { padding:28px; margin:0 4px; min-height:0; } .personal-competition-note h3 { font-size:var(--personal-lead); } .personal-competition-note p { font-size:var(--personal-body); } .personal-music p { font-size:var(--personal-body); } .personal-music .personal-photo { margin:0 12px; } .personal-now h2 { margin-bottom:0; } .personal-hello { margin:0 24px 60px; } .personal-footer { padding:28px 24px; flex-direction:column; gap:12px; } }
+@media(prefers-reduced-motion:reduce) { .personal-page * { animation:none!important; transition:none!important; } }

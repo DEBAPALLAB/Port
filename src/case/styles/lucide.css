@@ -1,0 +1,61 @@
+/* Lucide Tech case study. Scoped to this page; ceramic fields, no rules, no resting shadows. */
+[data-case='lucide'] .case-hero { grid-template-columns: minmax(0, 5.2fr) minmax(0, 6.8fr); }
+[data-case='lucide'] .case-hero h1 { font-size: clamp(40px, 4.4vw, 66px); }
+@media (max-width: 900px) { [data-case='lucide'] .case-hero { grid-template-columns: 1fr; } }
+[data-case='lucide'] .lc-kinds { margin: clamp(36px, 5vh, 56px) 0 clamp(28px, 4vh, 44px); }
+[data-case='lucide'] .lc-picker { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(28px, 4vw, 72px); align-items: start; margin-top: clamp(8px, 2vh, 24px); }
+[data-case='lucide'] .lc-picker-stage .case-stage-block { height: clamp(420px, 70vh, 740px); }
+[data-case='lucide'] .lc-sheet { background: #fff; padding: clamp(26px, 3.2vw, 52px); animation: lc-rise .55s var(--ease); }
+[data-case='lucide'] .lc-build { margin: 0 0 14px; font-size: 16px; font-weight: 650; color: var(--accent-deep); }
+[data-case='lucide'] .lc-sheet h3 { margin: 0 0 clamp(22px, 3vh, 34px); font-size: clamp(24px, 2.2vw, 34px); line-height: 1.14; letter-spacing: -.035em; font-weight: 600; text-wrap: balance; }
+[data-case='lucide'] .lc-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; }
+[data-case='lucide'] .lc-steps h4 { margin: 0 0 6px; font-size: 19px; font-weight: 640; letter-spacing: -.02em; }
+[data-case='lucide'] .lc-steps h4 a { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1.5px; }
+[data-case='lucide'] .lc-steps h4 a:hover { color: var(--accent-deep); }
+[data-case='lucide'] .lc-steps p { margin: 0; font-size: 17px; line-height: 1.55; }
+[data-case='lucide'] .lc-facts { margin: clamp(26px, 3.4vh, 40px) 0 0; padding: 24px 24px 6px; background: var(--paper); display: grid; gap: 16px; }
+[data-case='lucide'] .lc-facts div { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 14px; }
+[data-case='lucide'] .lc-facts dt { font-size: 15px; font-weight: 640; }
+[data-case='lucide'] .lc-facts dd { margin: 0; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+@keyframes lc-rise { from { opacity: 0; transform: translateY(12px); } }
+@media (max-width: 960px) {
+  [data-case='lucide'] .lc-picker { grid-template-columns: 1fr; }
+  [data-case='lucide'] .lc-facts div { grid-template-columns: 1fr; gap: 2px; }
+}
+
+/* Frame scrubber */
+[data-case='lucide'] .lc-scrub { display: grid; gap: 0; }
+[data-case='lucide'] .lc-scrub-view { position: relative; aspect-ratio: 1.9 / 1; background: #1c1d1a; overflow: hidden; border-radius: 12px; }
+[data-case='lucide'] .lc-scrub-view canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+[data-case='lucide'] .lc-scrub-loading { position: absolute; inset: 0; margin: 0; display: grid; place-items: center; color: #f6f4ef; font-size: 17px; }
+[data-case='lucide'] .lc-scrub-text { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 0 8%; pointer-events: none; }
+[data-case='lucide'] .lc-scrub-text p { grid-area: 1 / 1; margin: 0; color: #fff; font-size: clamp(22px, 3.6vw, 52px); font-weight: 560; letter-spacing: -.04em; line-height: 1.05; max-width: 16ch; text-wrap: balance; }
+[data-case='lucide'] .lc-scrub-controls { display: flex; align-items: center; gap: 18px; padding: 22px 0 8px; }
+[data-case='lucide'] .lc-range { flex: 1; display: grid; gap: 6px; font-size: 15px; font-weight: 600; }
+[data-case='lucide'] .lc-range input { width: 100%; height: 32px; accent-color: var(--accent-deep); margin: 0; cursor: ew-resize; }
+[data-case='lucide'] .lc-readout { margin: 18px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; background: var(--paper); }
+[data-case='lucide'] .lc-readout div { padding: 22px 24px 24px; display: flex; flex-direction: column; }
+[data-case='lucide'] .lc-readout dt { order: 2; margin-top: 8px; font-size: 16px; font-weight: 620; }
+[data-case='lucide'] .lc-readout dd { order: 1; margin: 0; font-size: clamp(36px, 4.6vw, 72px); font-weight: 560; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; }
+[data-case='lucide'] .lc-readout dd span { font-size: .4em; letter-spacing: 0; color: var(--muted); font-weight: 520; }
+@media (max-width: 640px) {
+  [data-case='lucide'] .lc-scrub-view { aspect-ratio: 1.15 / 1; }
+  [data-case='lucide'] .lc-readout { grid-template-columns: 1fr; }
+  [data-case='lucide'] .lc-readout div { flex-direction: row; align-items: baseline; gap: 16px; padding: 14px 20px; }
+  [data-case='lucide'] .lc-readout dt { order: 2; margin: 0; }
+  [data-case='lucide'] .lc-readout dd { font-size: 40px; min-width: 120px; }
+}
+
+/* Portfolio roster */
+[data-case='lucide'] .lc-umbrella { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(32px, 6vw, 112px); align-items: start; }
+[data-case='lucide'] .lc-roster { list-style: none; margin: 0; padding: 0; }
+[data-case='lucide'] .lc-roster a { display: grid; gap: 4px; padding: clamp(14px, 2.2vh, 24px) 0; transition: transform .45s var(--ease), color .25s ease; }
+[data-case='lucide'] .lc-roster a:hover { transform: translateX(14px); color: #ffded3; }
+[data-case='lucide'] .lc-roster-name { font-size: clamp(36px, 5.4vw, 84px); font-weight: 560; letter-spacing: -.055em; line-height: 1; }
+[data-case='lucide'] .lc-roster-line { font-size: 17px; opacity: .85; }
+@media (max-width: 960px) { [data-case='lucide'] .lc-umbrella { grid-template-columns: 1fr; } }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-case='lucide'] .lc-sheet { animation: none; }
+  [data-case='lucide'] .lc-roster a:hover { transform: none; }
+}

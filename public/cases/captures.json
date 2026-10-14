@@ -1,0 +1,79 @@
+{
+  "luman": [
+    "public/cases/luman/desktop-0.jpg",
+    "public/cases/luman/desktop-1.jpg",
+    "public/cases/luman/desktop-2.jpg",
+    "public/cases/luman/desktop-3.jpg",
+    "public/cases/luman/mobile-0.jpg",
+    "public/cases/luman/mobile-1.jpg",
+    "public/cases/luman/mobile-2.jpg",
+    "public/cases/luman/mobile-3.jpg"
+  ],
+  "superforms": [
+    "public/cases/superforms/desktop-0.jpg",
+    "public/cases/superforms/desktop-1.jpg",
+    "public/cases/superforms/desktop-2.jpg",
+    "public/cases/superforms/desktop-3.jpg",
+    "public/cases/superforms/mobile-0.jpg",
+    "public/cases/superforms/mobile-1.jpg",
+    "public/cases/superforms/mobile-2.jpg",
+    "public/cases/superforms/mobile-3.jpg"
+  ],
+  "mindspace": [
+    "public/cases/mindspace/desktop-0.jpg",
+    "public/cases/mindspace/desktop-1.jpg",
+    "public/cases/mindspace/desktop-2.jpg",
+    "public/cases/mindspace/desktop-3.jpg",
+    "public/cases/mindspace/mobile-0.jpg",
+    "public/cases/mindspace/mobile-1.jpg",
+    "public/cases/mindspace/mobile-2.jpg",
+    "public/cases/mindspace/mobile-3.jpg"
+  ],
+  "comparefi": [
+    "public/cases/comparefi/desktop-0.jpg",
+    "public/cases/comparefi/desktop-1.jpg",
+    "public/cases/comparefi/desktop-2.jpg",
+    "public/cases/comparefi/desktop-3.jpg",
+    "public/cases/comparefi/mobile-0.jpg",
+    "public/cases/comparefi/mobile-1.jpg",
+    "public/cases/comparefi/mobile-2.jpg",
+    "public/cases/comparefi/mobile-3.jpg"
+  ],
+  "gdc": [
+    "public/cases/gdc/desktop-0.jpg",
+    "public/cases/gdc/desktop-1.jpg",
+    "public/cases/gdc/desktop-2.jpg",
+    "public/cases/gdc/desktop-3.jpg",
+    "public/cases/gdc/mobile-0.jpg",
+    "public/cases/gdc/mobile-1.jpg",
+    "public/cases/gdc/mobile-2.jpg",
+    "public/cases/gdc/mobile-3.jpg"
+  ],
+  "notaprompt": [
+    "public/cases/notaprompt/desktop-0.jpg",
+    "public/cases/notaprompt/desktop-1.jpg",
+    "public/cases/notaprompt/desktop-2.jpg",
+    "public/cases/notaprompt/desktop-3.jpg",
+    "public/cases/notaprompt/mobile-0.jpg",
+    "public/cases/notaprompt/mobile-1.jpg",
+    "public/cases/notaprompt/mobile-2.jpg",
+    "public/cases/notaprompt/mobile-3.jpg"
+  ],
+  "lucide": [
+    "public/cases/lucide/desktop-0.jpg",
+    "public/cases/lucide/desktop-1.jpg",
+    "public/cases/lucide/desktop-2.jpg",
+    "public/cases/lucide/desktop-3.jpg",
+    "public/cases/lucide/mobile-0.jpg",
+    "public/cases/lucide/mobile-1.jpg",
+    "public/cases/lucide/mobile-2.jpg",
+    "public/cases/lucide/mobile-3.jpg"
+  ],
+  "poker": [
+    "public/cases/poker/desktop-0.jpg",
+    "public/cases/poker/desktop-1.jpg",
+    "public/cases/poker/mobile-0.jpg",
+    "public/cases/poker/mobile-1.jpg",
+    "public/cases/poker/mobile-2.jpg"
+  ]
+}

@@ -1,0 +1,37 @@
+.personal-invitation-section { padding-top:110px; }
+.personal-invitation { grid-template-columns:1.1fr 1fr; gap:9%; align-items:center; padding-bottom:80px; }
+.personal-invitation-copy h2 { font-size:clamp(40px,4.5vw,66px); line-height:1.05; letter-spacing:-.055em; margin:0 0 30px; }
+.personal-invitation-copy h2:focus { outline:none; }
+.personal-invitation-copy > p { max-width:470px; font-size:18px; line-height:1.65; margin:0 0 20px; color:var(--ink); }
+.read-personal-story { display:inline-flex; align-items:center; justify-content:space-between; gap:50px; min-height:56px; padding:16px 24px; margin-top:15px; background:#303a31; color:#fff; font-size:17px; font-weight:550; transition:transform .3s var(--ease),background .3s ease; }
+.read-personal-story:hover { background:#b93c24; transform:translateY(-3px); }
+.read-personal-story span { transition:transform .3s var(--ease); }
+.read-personal-story:hover span { transform:translate(3px,-3px); }
+.personal-story-promise { display:block; margin-top:18px; font-size:14px; line-height:1.5; }
+.personal-story-object { position:relative; padding:20px 10px 85px; }
+.story-postcard { position:relative; padding:32px 38px 72px; background:#eef0e9; transform:rotate(3deg); transition:transform .65s var(--ease); }
+.personal-story-object:hover .story-postcard { transform:rotate(0deg) translateY(-5px); }
+.postcard-greeting { font-size:17px; margin:0 0 30px; }
+.postcard-place { display:block; padding:4px 0; }
+.postcard-place strong { display:block; font-size:clamp(34px,3.1vw,46px); font-weight:500; line-height:1.1; letter-spacing:-.05em; }
+.postcard-place > span { display:block; font-size:15px; margin-top:8px; }
+.postcard-place:hover strong { color:#b93c24; }
+.postcard-arrow { display:block; font-size:26px; margin:12px 0; }
+.postcard-music { display:flex; gap:15px; align-items:center; font-size:14px; margin-top:30px; }
+.postcard-music:hover { text-decoration:underline; }
+.invitation-guitar { position:absolute; width:115%; bottom:-25px; left:-10%; transform:rotate(-10deg); pointer-events:none; transition:transform .65s var(--ease); }
+.personal-story-object:hover .invitation-guitar { transform:rotate(-6deg) translateX(8px); }
+.story-photo { margin:0; transform:rotate(3deg); }
+.story-photo img { display:block; width:100%; aspect-ratio:4/5; object-fit:cover; height:auto; }
+.story-photo figcaption { font-size:14px; padding-top:14px; }
+.personal-contact-strip { margin-top:0; padding:32px 0; background:#f3f4f0; padding-left:28px; padding-right:28px; gap:30px; }
+.personal-contact-strip h3 { font-size:16px; color:var(--ink); margin:0 0 10px; }
+.personal-contact-strip .email-link { font-size:24px; line-height:1.2; }
+.personal-copy-email { position:relative; display:flex; align-items:center; gap:22px; font-size:14px; }
+.personal-copy-email > button { min-height:44px; padding:10px 14px; background:#dde3d7; font-size:14px; }
+.personal-copy-email .copy-status { position:absolute; right:0; top:100%; margin:3px 0 0; max-width:300px; font-size:13px; }
+.personal-invitation-section .site-footer { font-size:13px; padding-top:28px; }
+.personal-invitation-section .site-footer button { font-size:13px; }
+@media(max-width:800px) { .personal-invitation { gap:6%; } .personal-invitation-copy h2 { font-size:40px; } .story-postcard { padding:28px 24px 65px; } .postcard-place strong { font-size:34px; } .personal-copy-email { align-items:flex-start; flex-direction:column; gap:8px; } }
+@media(max-width:600px) { .personal-invitation-section { padding-top:75px; } .personal-invitation { grid-template-columns:1fr; gap:38px; padding-bottom:50px; } .personal-invitation-copy h2 { font-size:clamp(32px,8.8vw,44px); } .personal-invitation-copy > p { font-size:17px; } .read-personal-story { width:100%; } .personal-story-object { margin:0 15px; padding-bottom:95px; } .story-postcard { padding:28px 30px 65px; } .personal-contact-strip { align-items:flex-start; flex-direction:column; padding:26px 22px; gap:24px; } .personal-copy-email { flex-direction:row; align-items:center; flex-wrap:wrap; gap:14px; } .personal-copy-email .copy-status { position:static; } .personal-invitation-section .site-footer { flex-direction:column; gap:14px; font-size:13px; } }
+@media(prefers-reduced-motion:reduce) { .personal-invitation-section * { transition:none!important; } }

@@ -1,0 +1,127 @@
+/* Poker Gods. Accent is the product's own chip red (#c13b2a): fills and dots, and white text on it holds 5.5:1. */
+[data-case='poker'] { --pk-ink-1: #3a3b37; --pk-ink-2: #46473f; --pk-ink-3: #55564e; }
+[data-case='poker'] .case-hero { grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); }
+[data-case='poker'] .case-hero h1 { font-size: clamp(40px, 4.8vw, 76px); }
+@media (max-width: 900px) { [data-case='poker'] .case-hero { grid-template-columns: 1fr; } }
+
+/* Side-pot table */
+[data-case='poker'] .pk-lab { display: grid; gap: clamp(28px, 4vw, 56px); }
+[data-case='poker'] .pk-stage { height: clamp(440px, 74vh, 740px); }
+[data-case='poker'] .pk-phases { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+[data-case='poker'] .pk-play { margin-left: auto; background: var(--accent-deep); color: #fff; }
+[data-case='poker'] .tone-ink .pk-play:hover { background: #fff; color: var(--ink); }
+[data-case='poker'] .pk-fallback { max-width: 28ch; text-align: center; }
+[data-case='poker'] .pk-lab-body { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 40px); align-items: start; }
+[data-case='poker'] .pk-controls, [data-case='poker'] .pk-results { background: var(--pk-ink-1); padding: clamp(22px, 3vw, 40px); }
+[data-case='poker'] .pk-presets { margin-top: 0; }
+[data-case='poker'] .pk-note { font-size: 17px; line-height: 1.55; margin: 18px 0 22px; min-height: 3.1em; }
+[data-case='poker'] .pk-players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+[data-case='poker'] .pk-player { margin: 0; border: 0; padding: 18px 20px 20px; background: var(--pk-ink-2); min-width: 0; transition: opacity .3s ease; }
+[data-case='poker'] .pk-player[data-folded='true'] { opacity: .62; }
+[data-case='poker'] .pk-player legend { float: left; width: 100%; padding: 0; margin: 0 0 10px; font-size: 19px; font-weight: 650; letter-spacing: -.02em; }
+[data-case='poker'] .pk-player legend + * { clear: both; }
+[data-case='poker'] .pk-field { display: grid; grid-template-columns: 44px minmax(0, 1fr) 40px; align-items: center; gap: 8px; font-size: 15px; min-height: 40px; }
+[data-case='poker'] .pk-field output { text-align: right; font-variant-numeric: tabular-nums; font-weight: 640; }
+[data-case='poker'] input[type='range'] { width: 100%; height: 36px; margin: 0; accent-color: #ff7a5c; background: transparent; cursor: pointer; }
+[data-case='poker'] .pk-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+[data-case='poker'] .pk-player .case-chip { padding: 9px 14px; font-size: 14.5px; background: var(--pk-ink-3); }
+[data-case='poker'] .pk-player .case-chip[aria-pressed='true'] { background: #fff; color: var(--ink); }
+[data-case='poker'] .pk-rank { display: inline-flex; align-items: center; gap: 4px; font-size: 14.5px; font-weight: 600; margin-left: auto; }
+[data-case='poker'] .pk-rank span { min-width: 66px; text-align: center; }
+[data-case='poker'] .pk-rank button { width: 40px; height: 40px; border-radius: 50%; background: var(--pk-ink-3); font-size: 18px; transition: background .2s ease, color .2s ease; }
+[data-case='poker'] .pk-rank button:hover:not(:disabled) { background: #fff; color: var(--ink); }
+[data-case='poker'] .pk-rank button:disabled { opacity: .35; cursor: default; }
+[data-case='poker'] .pk-controls .case-caption { margin-top: 20px; }
+[data-case='poker'] .tone-ink .pk-controls .case-caption, [data-case='poker'] .tone-ink .pk-results .case-caption { color: #d4d0c7; }
+
+[data-case='poker'] .pk-results h3 { font-size: 24px; letter-spacing: -.03em; margin: 0 0 16px; font-weight: 620; }
+[data-case='poker'] .pk-results h3:not(:first-child) { margin-top: 36px; }
+[data-case='poker'] .pk-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: 16px; }
+[data-case='poker'] .pk-table th, [data-case='poker'] .pk-table td { text-align: left; padding: 13px 14px; font-weight: 500; line-height: 1.35; vertical-align: top; }
+[data-case='poker'] .pk-table thead th { color: #d4d0c7; font-size: 15px; padding-top: 0; padding-bottom: 4px; }
+[data-case='poker'] .pk-table tbody tr { background: var(--pk-ink-2); transition: background .2s ease, color .2s ease; }
+[data-case='poker'] .pk-table tbody th { font-weight: 650; }
+[data-case='poker'] .pk-table td:nth-child(2) { font-variant-numeric: tabular-nums; font-weight: 650; }
+[data-case='poker'] .pk-table tbody tr[data-hot='true'] { background: #fff; color: var(--ink); }
+[data-case='poker'] .pk-table tbody tr:focus-visible { outline-offset: 2px; }
+[data-case='poker'] .pk-refund, [data-case='poker'] .pk-sum, [data-case='poker'] .pk-empty { font-size: 16px; line-height: 1.5; margin: 12px 0 0; }
+[data-case='poker'] .pk-sum { color: #d4d0c7; }
+[data-case='poker'] .pk-transfers { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
+[data-case='poker'] .pk-transfers li { display: flex; align-items: baseline; gap: 8px; padding: 12px 16px; background: var(--pk-ink-2); font-size: 17px; }
+[data-case='poker'] .pk-transfers span { font-weight: 650; }
+[data-case='poker'] .pk-transfers b { margin-left: auto; font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 650; }
+@media (max-width: 1000px) { [data-case='poker'] .pk-lab-body { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { [data-case='poker'] .pk-players { grid-template-columns: 1fr; } [data-case='poker'] .pk-stage { height: 440px; } [data-case='poker'] .pk-play { margin-left: 0; } [data-case='poker'] .pk-table th, [data-case='poker'] .pk-table td { padding: 11px 9px; } }
+
+/* Why / product */
+[data-case='poker'] .pk-night { list-style: none; margin: 0; padding: 0; display: grid; }
+[data-case='poker'] .pk-night li { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.5fr); gap: 8px clamp(24px, 5vw, 96px); padding: clamp(20px, 3vh, 34px) 0; align-items: baseline; }
+[data-case='poker'] .pk-night h3 { margin: 0; font-size: clamp(26px, 3vw, 44px); letter-spacing: -.04em; font-weight: 560; line-height: 1.05; }
+[data-case='poker'] .pk-night p { margin: 0; font-size: 18px; line-height: 1.55; max-width: 46ch; }
+@media (max-width: 700px) { [data-case='poker'] .pk-night li { grid-template-columns: 1fr; } }
+[data-case='poker'] .pk-after { margin-top: 4px; }
+
+/* Engine flow */
+[data-case='poker'] .pk-flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 34px; }
+[data-case='poker'] .pk-flow li { position: relative; background: var(--stone); padding: 22px 28px 24px; }
+[data-case='poker'] .pk-flow li:not(:last-child)::after { content: '↓'; position: absolute; left: 28px; bottom: -31px; font-size: 22px; line-height: 1; color: var(--accent-deep); }
+[data-case='poker'] .pk-flow li[data-pure='true'] { background: var(--case-accent, var(--accent)); color: #fff; }
+[data-case='poker'] .pk-flow h3 { margin: 0 0 6px; font-size: 22px; letter-spacing: -.03em; font-weight: 640; }
+[data-case='poker'] .pk-flow p { margin: 0; font-size: 17px; line-height: 1.5; }
+
+/* Settlement */
+[data-case='poker'] .pk-greedy { background: #fff; color: var(--ink); padding: clamp(22px, 3vw, 40px); }
+[data-case='poker'] .pk-nets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+[data-case='poker'] .pk-nets span { background: var(--paper); padding: 10px 16px; font-weight: 650; font-size: 17px; min-width: 72px; }
+[data-case='poker'] .pk-nets b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; }
+[data-case='poker'] .pk-nets span[data-sign='up'] b { color: #1b6b3f; }
+[data-case='poker'] .pk-nets span[data-sign='down'] b { color: var(--accent-deep); }
+[data-case='poker'] .pk-greedy .case-chip { background: var(--stone); }
+[data-case='poker'] .pk-greedy .case-chip[aria-pressed='true'] { background: var(--ink); color: #fff; }
+[data-case='poker'] .pk-transfers-light { margin-top: 20px; }
+[data-case='poker'] .pk-transfers-light li { background: var(--paper); animation: pk-in .4s var(--ease) both; }
+[data-case='poker'] .pk-greedy-count { font-size: 18px; font-weight: 620; margin: 8px 0 0; }
+@keyframes pk-in { from { opacity: 0; transform: translateY(8px); } }
+[data-case='poker'] .tone-accent .case-code { background: #262724; }
+
+/* Query race */
+[data-case='poker'] .pk-race { background: var(--paper); padding: clamp(22px, 3vw, 40px); }
+[data-case='poker'] .pk-trips { display: flex; gap: 4px; height: 64px; margin: 26px 0 22px; transition: width .7s var(--ease); }
+[data-case='poker'] .pk-trips span { flex: 1; background: var(--ink); animation: pk-grow .5s var(--ease) both; animation-delay: calc(var(--n) * 60ms); transform-origin: 0 50%; }
+[data-case='poker'] .pk-trips span:only-child { background: var(--case-accent, var(--accent)); }
+@keyframes pk-grow { from { transform: scaleX(0); opacity: 0; } }
+[data-case='poker'] .pk-latency { display: grid; grid-template-columns: auto minmax(0, 1fr) 70px; gap: 12px; align-items: center; font-size: 16px; }
+[data-case='poker'] .pk-latency output { font-weight: 650; text-align: right; font-variant-numeric: tabular-nums; }
+[data-case='poker'] .pk-race input[type='range'] { accent-color: var(--accent-deep); }
+[data-case='poker'] .pk-race .case-chip { background: #fff; }
+[data-case='poker'] .pk-race .case-chip[aria-pressed='true'] { background: var(--ink); color: #fff; }
+[data-case='poker'] .pk-race-total { font-size: 19px; line-height: 1.4; margin: 20px 0 0; }
+[data-case='poker'] .pk-race-total b { font-size: clamp(30px, 3.4vw, 46px); letter-spacing: -.04em; font-weight: 580; margin-right: 8px; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { [data-case='poker'] .pk-latency { grid-template-columns: 1fr 70px; } [data-case='poker'] .pk-latency span { grid-column: 1 / -1; } }
+
+/* Proof */
+[data-case='poker'] .pk-proof { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: start; }
+[data-case='poker'] .pk-cells { width: 100%; aspect-ratio: 2 / 1; height: auto; display: block; background: #ebe8e1; }
+[data-case='poker'] .pk-legend { margin-top: 14px; max-width: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 8px; }
+[data-case='poker'] .pk-legend span { width: 14px; height: 14px; display: inline-block; margin-left: 10px; }
+[data-case='poker'] .pk-legend span:first-child { margin-left: 0; }
+[data-case='poker'] .pk-legend [data-k='a'] { background: #fff; }
+[data-case='poker'] .pk-legend [data-k='b'] { background: #9a968c; }
+[data-case='poker'] .pk-legend [data-k='c'] { background: #ed5939; }
+[data-case='poker'] .pk-legend [data-k='d'] { background: #ffd33d; }
+[data-case='poker'] .pk-run { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-bottom: 26px; }
+[data-case='poker'] .pk-go { background: var(--accent-deep); color: #fff; font-size: 17px; font-weight: 640; padding: 18px 30px; border-radius: 999px; transition: background .25s ease, color .25s ease, transform .3s var(--ease); }
+[data-case='poker'] .pk-go:hover:not(:disabled) { background: #fff; color: var(--ink); transform: translateY(-2px); }
+[data-case='poker'] .pk-go:disabled { opacity: .7; cursor: progress; }
+[data-case='poker'] .pk-seed { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; }
+[data-case='poker'] .pk-seed input { width: 140px; background: var(--pk-ink-2); color: #fff; border: 0; padding: 14px 16px; font: inherit; font-weight: 600; font-variant-numeric: tabular-nums; }
+[data-case='poker'] .pk-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 28px; margin: 0; }
+[data-case='poker'] .pk-stats div { display: flex; flex-direction: column; }
+[data-case='poker'] .pk-stats dt { order: 2; font-size: 16px; font-weight: 620; margin-top: 4px; }
+[data-case='poker'] .pk-stats dd { order: 1; margin: 0; font-size: clamp(34px, 3.6vw, 54px); font-weight: 560; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; }
+[data-case='poker'] .pk-stats p { order: 3; margin: 3px 0 0; font-size: 15px; color: #d4d0c7; line-height: 1.4; }
+[data-case='poker'] .pk-verdict { font-size: 20px; line-height: 1.4; font-weight: 600; margin: 28px 0 0; max-width: 32ch; }
+@media (max-width: 900px) { [data-case='poker'] .pk-proof { grid-template-columns: 1fr; } }
+[data-case='poker'] .pk-open { font-size: 26px; letter-spacing: -.03em; margin: 0 0 14px; }
+
+@media (prefers-reduced-motion: reduce) { [data-case='poker'] .pk-trips span, [data-case='poker'] .pk-transfers-light li { animation: none; } [data-case='poker'] .pk-trips { transition: none; } }

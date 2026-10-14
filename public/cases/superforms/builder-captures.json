@@ -1,0 +1,16 @@
+{
+  "source": "Actual builder component, local isolated sample form",
+  "capturedAt": "2026-10-14T05:56:49.844Z",
+  "data": "Sample workshop form; no customer data",
+  "fonts": "System fallbacks for the local capture",
+  "files": [
+    "builder-build.jpg",
+    "builder-design.jpg",
+    "builder-preview.jpg",
+    "builder-ai.jpg",
+    "builder-mobile-build.jpg",
+    "builder-mobile-design.jpg",
+    "builder-mobile-preview.jpg",
+    "builder-mobile-ai.jpg"
+  ]
+}
