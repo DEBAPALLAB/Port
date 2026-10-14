@@ -159,7 +159,7 @@ export function createDominoScene({ canvas, host, anchor, reducedMotion, onReady
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
   const projected = new THREE.Vector3();
-  const initial = { lift: reducedMotion ? 0 : .65, opacity: reducedMotion ? 1 : 0 };
+  const initial = { lift: reducedMotion ? 0 : .4, opacity: reducedMotion ? 1 : 0 };
   const loop = createFrameLoop({ draw: drawFrame, step: animate });
 
   function updateAnchor() {
@@ -266,7 +266,7 @@ export function createDominoScene({ canvas, host, anchor, reducedMotion, onReady
     settleTween?.kill();
     if (reducedMotion) { tiles.forEach(tile => { tile.pivot.rotation.x = 0; tile.shadow.scale.set(.85, 1.25, 1); }); render(); return; }
     settleTween = gsap.to(value, {
-      amount: 0, duration: .85, ease: 'power3.inOut',
+      amount: 0, duration: .65, ease: 'power2.inOut',
       onUpdate: () => {
         tiles.forEach((tile, i) => {
           tile.pivot.rotation.x = rotations[i] * value.amount;
@@ -308,7 +308,6 @@ export function createDominoScene({ canvas, host, anchor, reducedMotion, onReady
     canvas.setPointerCapture(event.pointerId);
     canvas.style.cursor = 'grabbing';
     introTween?.kill();
-    settleTween?.kill();
     settleTween?.kill();
     canvas.style.opacity = '1';
     tiles.forEach(tile => { tile.root.position.y = .03; });
@@ -393,7 +392,7 @@ export function createDominoScene({ canvas, host, anchor, reducedMotion, onReady
   onReady();
   if (!reducedMotion) {
     introTween = gsap.to(initial, {
-      lift: 0, opacity: 1, duration: 1.25, delay: .08, ease: 'power3.out',
+      lift: 0, opacity: 1, duration: .9, delay: .04, ease: 'power2.out',
       onUpdate: () => {
         tiles.forEach((tile, i) => { tile.root.position.y = .03 + initial.lift * (1 + i * .02); });
         canvas.style.opacity = String(initial.opacity);

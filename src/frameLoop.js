@@ -17,7 +17,7 @@ export function createFrameLoop({ draw, step, request = requestAnimationFrame, c
   }
   return {
     invalidate,
-    start() { running = true; previous = null; invalidate(); },
+    start() { if (!running) previous = null; running = true; invalidate(); },
     stop() { running = false; previous = null; },
     setVisible(value) {
       visible = value; previous = null;

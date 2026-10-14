@@ -19,8 +19,11 @@ export default function WorkSection({ animate, reducedMotion, enabled, intent, o
   useEffect(() => {
     if (!animate) return;
     const context = gsap.context(() => {
-      gsap.from('.work-intro > *, .superforms-copy > *', { y: 24, opacity: 0, duration: .8, stagger: .07, ease: 'power3.out', scrollTrigger: { trigger: '.work-intro', start: 'top 86%', once: true } });
-      gsap.from('.folio-stage', { y: 28, opacity: 0, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: '.folio-stage', start: 'top 92%', once: true } });
+      for (const selector of ['.work-intro', '.superforms-copy']) {
+        const group=root.current.querySelector(selector);
+        gsap.from(group.children, { y: 14, opacity: 0, duration: .55, stagger: .035, ease: 'power2.out', clearProps:'transform,opacity', scrollTrigger: { trigger: group, start: 'top 90%', once: true } });
+      }
+      gsap.from('.folio-stage', { y: 16, opacity: 0, duration: .6, ease: 'power2.out', clearProps:'transform,opacity', scrollTrigger: { trigger: '.folio-stage', start: 'top 92%', once: true } });
     }, root);
     return () => context.revert();
   }, [animate]);
@@ -34,7 +37,7 @@ export default function WorkSection({ animate, reducedMotion, enabled, intent, o
       <div className="superforms-copy"><a className="chapter-project-name" href="https://www.superforms.in" target="_blank" rel="noreferrer">Superforms.in <span aria-hidden="true">↗</span></a><a className="file-case-link superforms-case-link" href="/work/superforms/">Read the Superforms case study <span aria-hidden="true">→</span></a><p className="project-introduction">The product decision<br/>is in the details.</p><div className="layer-switch" role="group" aria-label="Follow the Superforms story">{chapters.map((item, index) => <button key={item.label} aria-pressed={chapter === index} onClick={() => visit(index)}><span className="layer-paper" aria-hidden="true"/>{item.label}</button>)}</div><div className="layer-story" aria-live="polite"><h3>{story.title}</h3><p>{story.body}</p></div><p className="story-connection">{story.connection}</p><button className="story-next" onClick={() => visit((chapter + 1) % 3)}>{chapter === 2 ? 'Back to the brief' : chapter === 0 ? 'See what the decision changes' : 'See where the answer goes'} <span aria-hidden="true">→</span></button></div>
     </div>
     <EditorDecisions/>
-    <div className="answer-study perspective-handoff"><div><h3>Where should we go next?</h3><p>Carry your perspective into the wider body of work.</p></div><div className="answer-options" role="group" aria-label="Choose your portfolio intention">{[['product', 'A useful product'], ['frontend', 'A better interface'], ['distribution', 'A public presence']].map(([id, label]) => <button key={id} aria-pressed={visitorChoice === id} onClick={() => { setVisitorChoice(id); onIntent(id); }}><span className="answer-check" aria-hidden="true">{visitorChoice === id ? '✓' : '+'}</span>{label}</button>)}</div><div className="answer-feedback" aria-live="polite">{visitorChoice ? 'That perspective carries forward. You can change it at any point.' : 'The story continues either way.'}</div></div>
+    <div className="answer-study perspective-handoff"><div><h3>Where should we go next?</h3><p>Carry your perspective into the wider body of work.</p></div><div className="answer-options" role="group" aria-label="Choose your portfolio intention">{[['product', 'A useful product'], ['frontend', 'A better interface'], ['distribution', 'A public presence']].map(([id, label]) => <button key={id} aria-pressed={visitorChoice === id} onClick={() => { setVisitorChoice(id); onIntent(id); }}><span className="answer-check" aria-hidden="true">{visitorChoice === id ? '✓' : '+'}</span>{label}</button>)}</div><div className="answer-feedback" aria-live="polite">{visitorChoice ? 'That perspective carries forward. You can change it at any point.' : 'The story continues either way.'}</div></div> {/* taste-skill-ignore: the check mark is the selected answer indicator. */}
     <div className="chapter-exit"><p>A decision only matters when the interface follows through.</p><a href="#workflow">Open the project files <span aria-hidden="true">↓</span></a></div>
   </section>;
 }

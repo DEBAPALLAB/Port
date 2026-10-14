@@ -67,13 +67,16 @@ try {
     await page.goto(`${base}/#workflow`,{settleMs:500});
     await page.eval(()=>document.querySelector('.drawer-front').focus());
     await sleep(100);
-    assert.equal(await page.eval(()=>document.querySelector('.drawer-front').getAttribute('aria-expanded')),'true','keyboard focus previews');
+    assert.equal(await page.eval(()=>document.querySelector('.cabinet-drawer').dataset.open),'true','keyboard focus opens only the drawer');
+    assert.equal(await page.eval(()=>document.querySelector('.drawer-front').getAttribute('aria-expanded')),'false','focus does not open notes');
     assert.equal(await page.eval(()=>getComputedStyle(document.querySelector('.drawer-front')).transitionDuration),'0s');
     await page.send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
     await page.send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+    await sleep(100);
+    assert.equal(await page.eval(()=>document.querySelector('.drawer-front').getAttribute('aria-expanded')),'true','Enter opens the notes');
     await page.send('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
     await sleep(100);
-    assert.equal(await page.eval(()=>document.activeElement.textContent.startsWith('Explore the file')),true,'folder actions are next in keyboard order');
+    assert.equal(await page.eval(()=>document.activeElement.classList.contains('preview-card-tab')),true,'the individual files are next in keyboard order');
     await page.goto(`${base}/about/`,{settleMs:600});
     assert.equal(await page.eval(()=>getComputedStyle(document.querySelector('.personal-portrait')).animationName),'none');
     console.log('ok reduced motion and keyboard');

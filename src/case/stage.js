@@ -16,14 +16,14 @@ export function createStage(canvas, host, { setup, options = {}, reducedMotion =
   const {
     fov = 28, distance = 10, height = 1.4, target = [0, 0, 0], frame = 0,
     yaw = [-.55, .55], pitch = [-.18, .32], startYaw = -.32, startPitch = .1,
-    drag = true, ambient = true, floor = -1.2, shadow = .14, exposure = 1,
+    drag = true, ambient = true, floor = -1.2, shadow = .14, exposure = 1, maxPixelRatio = 2,
   } = options;
 
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
   } catch (error) { onFail(error); return { dispose() {}, send() {} }; }
-  renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 700 ? 1.5 : 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 700 ? 1.5 : maxPixelRatio));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.toneMappingExposure = exposure;
@@ -154,7 +154,10 @@ export function createStage(canvas, host, { setup, options = {}, reducedMotion =
   function invalidate() { loop.invalidate(); }
 
   // Scroll progress: 0 as the stage enters from below, 1 as it leaves at the top.
+  let measureFrame=0;
+  function scheduleMeasure() { if (!measureFrame) measureFrame=requestAnimationFrame(measure); }
   function measure() {
+    measureFrame=0;
     const rect = host.getBoundingClientRect();
     const total = innerHeight + rect.height;
     const value = THREE.MathUtils.clamp((innerHeight - rect.top) / total, 0, 1);
@@ -163,7 +166,7 @@ export function createStage(canvas, host, { setup, options = {}, reducedMotion =
 
   function resize() {
     const width = host.clientWidth, heightPx = host.clientHeight;
-    if (!width || !heightPx) return;
+    if (!width || !heightPx || (width===state.width && heightPx===state.height)) return;
     state.width = width; state.height = heightPx;
     renderer.setSize(width, heightPx, false);
     placeCamera();
@@ -215,7 +218,7 @@ export function createStage(canvas, host, { setup, options = {}, reducedMotion =
     loop.start();
   }
   function pointerLeave() { state.pointerInside = false; if (state.hovered) { hooks.hover?.(null, state.hovered); state.hovered = null; } loop.start(); }
-  function cancel() { state.dragging = false; down = null; }
+  function cancel() { state.dragging = false; state.velocity=0; down = null; loop.start(); }
 
   canvas.style.cursor = drag ? 'grab' : '';
   canvas.addEventListener('pointerdown', pointerDown);
@@ -225,7 +228,7 @@ export function createStage(canvas, host, { setup, options = {}, reducedMotion =
   canvas.addEventListener('pointerleave', pointerLeave);
   const lost = event => { event.preventDefault(); onFail(new Error('WebGL context lost')); };
   canvas.addEventListener('webglcontextlost', lost);
-  addEventListener('scroll', measure, { passive: true });
+  addEventListener('scroll', scheduleMeasure, { passive: true });
 
   const visibility = () => { const on = state.visible && !document.hidden; loop.setVisible(on); if (on) loop.start(); };
   const observer = new IntersectionObserver(entries => { state.visible = entries[0].isIntersecting; visibility(); }, { rootMargin: '80px' });
@@ -242,7 +245,7 @@ export function createStage(canvas, host, { setup, options = {}, reducedMotion =
     dispose() {
       loop.destroy(); observer.disconnect(); resizer.disconnect();
       document.removeEventListener('visibilitychange', visibility);
-      removeEventListener('scroll', measure);
+      removeEventListener('scroll', scheduleMeasure); cancelAnimationFrame(measureFrame);
       canvas.removeEventListener('pointerdown', pointerDown); canvas.removeEventListener('pointermove', pointerMove);
       canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', cancel);
       canvas.removeEventListener('pointerleave', pointerLeave); canvas.removeEventListener('webglcontextlost', lost);

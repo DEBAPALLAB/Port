@@ -2,7 +2,7 @@ import { caseIndex } from '../caseIndex.js';
 import { projects } from '../../projects.js';
 
 // Nine case studies as nine standing dominoes. Scroll sets them up; pushing one topples it into its story.
-export const options = { frame: 4.6, height: 2.2, target: [0, .55, 0], yaw: [-.35, .35], startYaw: 0, startPitch: .06, pitch: [-.05, .2], floor: -.02, shadow: .16 };
+export const options = { frame: 4.6, height: 2.2, target: [0, .55, 0], yaw: [-.35, .35], startYaw: 0, startPitch: .06, pitch: [-.05, .2], floor: -.02, shadow: .16, ambient:false, maxPixelRatio:1.5 };
 
 const W = .92, H = 1.84, D = .26;
 
@@ -56,7 +56,7 @@ export default function setup(api) {
     });
   }
 
-  let hovered = -1, pushed = -1;
+  let hovered = -1, pushed = -1, openTimer;
   function setHover(index) {
     if (index === hovered) return;
     if (hovered >= 0 && hovered !== pushed) { const p = pieces[hovered]; p.liftTarget = 0; p.mesh.material = [body, body, body, body, p.cool, body]; }
@@ -66,13 +66,13 @@ export default function setup(api) {
     kick(.8);
   }
   function push(index) {
-    if (pushed >= 0) return;
+    if (pushed >= 0 || index < 0 || index >= pieces.length) return;
     pushed = index; setHover(index);
     const p = pieces[index];
     if (reducedMotion) { emit('open', p.item.slug); return; }
     p.falling = true; p.fallVelocity = .6;
     kick(2);
-    setTimeout(() => emit('open', p.item.slug), 720);
+    openTimer=setTimeout(() => emit('open', p.item.slug), 620);
   }
 
   // Wide stages hold one arc of nine; narrow stages stack three rows of three, stepping back in depth.
@@ -103,9 +103,10 @@ export default function setup(api) {
     on(name, payload) {
       if (name === 'focus') setHover(pieces.findIndex(p => p.item.slug === payload));
       if (name === 'push') push(pieces.findIndex(p => p.item.slug === payload));
-      if (name === 'reset') { pushed = -1; pieces.forEach(p => { p.fall = 0; p.falling = false; }); setHover(-1); }
+      if (name === 'reset') { clearTimeout(openTimer); pushed = -1; pieces.forEach(p => { p.fall = 0; p.falling = false; }); setHover(-1); }
     },
     resize(width, height) { layout(width, height); },
+    dispose() { clearTimeout(openTimer); },
     hover(object) { setHover(object ? pieces.findIndex(p => p.mesh === object) : -1); },
     update(dt) {
       let busy = false;
@@ -115,7 +116,7 @@ export default function setup(api) {
         const local = reducedMotion ? 1 : THREE.MathUtils.clamp(setUp * 1.8 - index / (count - 1) * .8, 0, 1);
         const eased = 1 - Math.pow(1 - local, 3);
         if (Math.abs(eased - p.stand) > .0005) { p.stand = eased; busy = true; }
-        p.lift += (p.liftTarget - p.lift) * (1 - Math.exp(-10 * dt));
+        p.lift = reducedMotion ? p.liftTarget : p.lift + (p.liftTarget - p.lift) * (1 - Math.exp(-12 * dt));
         if (Math.abs(p.liftTarget - p.lift) > .001) busy = true;
         if (p.falling) {
           // Hinged fall with gravity-like acceleration, settling flat with a small rebound.

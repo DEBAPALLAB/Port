@@ -25,6 +25,13 @@ test('offscreen time does not advance the cascade and destroying cancels work',(
 test('a long foreground frame is bounded rather than teleporting the pieces',()=>{
   const h=harness();h.loop.start();h.tick(100);h.tick(1000);assert.equal(h.deltas[1],.05);
 });
+test('pointer and scroll invalidations cannot repeatedly reset an active animation clock',()=>{
+  const h=harness();h.loop.start();h.tick(100);
+  for(let i=1;i<=20;i++) { for(let event=0;event<6;event++)h.loop.start(); h.tick(100+i*16); }
+  assert.equal(h.pending.size,1);
+  assert.ok(Math.abs(h.deltas.reduce((sum,dt)=>sum+dt,0)-.32)<1e-9);
+  h.loop.stop();h.loop.start();h.tick(5000);assert.equal(h.deltas.at(-1),0);
+});
 test('the continuous thread fits mobile and desktop gutters and follows reading height',()=>{
   for(const width of [320,390,768,1440]) {
     const g=buildThread({width,start:{x:width/2,y:800},stops:[960,2300,3900],end:4500});

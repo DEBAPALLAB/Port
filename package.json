@@ -12,7 +12,10 @@
     "check:interactions": "node scripts/case-interactions.mjs",
     "check:superforms": "node scripts/superforms-check.mjs",
     "check:personal": "node scripts/cabinet-about-check.mjs",
-    "check:files": "node scripts/project-files-check.mjs"
+    "check:files": "node scripts/project-files-check.mjs",
+    "check:drawer-cards": "node scripts/drawer-cards-check.mjs",
+    "check:cabinet-stability": "node scripts/cabinet-stability-check.mjs",
+    "check:home-motion": "node scripts/home-motion-check.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.2.8",

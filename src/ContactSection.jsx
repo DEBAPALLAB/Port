@@ -9,7 +9,10 @@ export default function ContactSection({ animate, reducedMotion, onReplay }) {
   useEffect(()=>{
     if(!animate || reducedMotion) return;
     const context=gsap.context(()=>{
-      gsap.from('.personal-invitation-copy > *, .story-postcard > *, .invitation-guitar, .story-photo',{y:24,opacity:0,duration:.75,stagger:.075,ease:'power3.out',scrollTrigger:{trigger:'.personal-invitation',start:'top 82%',once:true}});
+      for (const selector of ['.personal-invitation-copy','.personal-story-object']) {
+        const group=root.current.querySelector(selector);
+        gsap.from(group.children,{y:14,opacity:0,duration:.55,stagger:.04,ease:'power2.out',clearProps:'transform,opacity',scrollTrigger:{trigger:group,start:'top 90%',once:true}});
+      }
     },root);
     return ()=>context.revert();
   },[animate,reducedMotion]);
