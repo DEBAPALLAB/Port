@@ -3,14 +3,14 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 
 const pages = {
   superforms: ['Superforms case study', 'How a form builder turns a plain-language brief into a form whose questions keep their identity through every AI edit.'],
-  luman: ['Luman case study', 'Documents, tasks, calendars, chat and whiteboards in one team workspace, and the Godmode view that sees all of it.'],
+  luman: ['Luman case study', 'A team workspace with two dashboards: Classic, a page per tool, and God Mode, a desktop where every tool stays open and one sentence arranges them.'],
   mindspace: ['Mindspace case study', 'Internship work on the new Mindspace: AI voice sessions, assessments, booking and chat.'],
   notaprompt: ['Notaprompt case study', 'An AI-agent simulation for watching how an idea moves through a connected population.'],
   comparefi: ['CompareFi case study', 'Side-by-side comparisons that make Indian lending products easier to understand.'],
   poker: ['Poker Gods case study', 'Chips, buy-ins, blinds, betting and settlement for a home poker table.'],
   gdc: ['GDC Dibrugarh case study', 'The official web portal for Government Dental College, Dibrugarh.'],
   culprit: ['Culprit case study', 'A product concept for debugging real software by following the evidence.'],
-  lucide: ['Lucide Tech case study', 'The studio behind the work: its site, its practice and its client builds.'],
+  lucide: ['Lucide Tech case study', 'My studio’s site, built eight times: a lamp that lights its own headline, and a name shared with an icon library.'],
 };
 
 for (const [slug, [title, description]] of Object.entries(pages)) {

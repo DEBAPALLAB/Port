@@ -2,7 +2,7 @@
 
 An isolated portfolio direction for Debapallab Das. The existing `PORTFOLIO` checkout is untouched.
 
-The home page's closing section now invites visitors into the personal About page, using Dibrugarh, Nagpur and music as its story preview. “Read my story” is its primary action; chapter links open home, college and music directly. The earlier service chooser and project-brief form are removed. Email, copy-email feedback and replay remain below the invitation.
+The home page's “Meet the person” section includes a live Gemini 3.1 Flash voice guide, grounded in the biography and project case studies. Visitors can speak, listen without a microphone, type, read captions and receive relevant project links. Add the server-only `GEMINI_API_KEY` to `.env.local`; see [voice setup and verification](docs/voice.md). The personal About link, email, copy-email feedback and replay remain available.
 
 The personal About page is at `/about/`: Dibrugarh, school-era design, IIIT Nagpur, freelancing, competitions, singing and guitar. The home page's former About invitation is now Contact. The project picker is an animated filing cabinet with keyboard and touch support. Add personal photos using `src/personalStory.js`; the six reserved spaces are described in `public/about/README.md`. Run `npm run check:personal` for the responsive browser checks (default local server: port 5173).
 

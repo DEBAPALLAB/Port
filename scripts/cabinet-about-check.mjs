@@ -12,7 +12,7 @@ try {
       await page.goto(`${base}/#workflow`, {settleMs:1000});
       assert.equal(await page.eval(()=>document.querySelector('.journey-shell').hidden),false,'hash links unlock the destination');
       assert.equal(await page.eval(()=>document.querySelectorAll('.cabinet-drawer').length),9);
-      assert.equal(await page.eval(()=>document.querySelector('.site-header a[href="/about/"]').textContent),'About');
+      assert.equal(await page.eval(()=>document.querySelector('.site-header a[href="/about/"]').textContent),'My story');
       await page.eval(()=>document.querySelector('.collection-heading').scrollIntoView({behavior:'instant'}));
       await sleep(900);
       await page.screenshot({path:`${out}/${width}-cabinet-closed.jpg`,quality:90});
@@ -67,10 +67,10 @@ try {
     await page.goto(`${base}/#workflow`,{settleMs:500});
     await page.eval(()=>document.querySelector('.drawer-front').focus());
     await sleep(100);
-    assert.equal(await page.eval(()=>document.querySelector('.cabinet-drawer').dataset.open),'true','keyboard focus opens only the drawer');
+    assert.equal(await page.eval(()=>document.querySelector('.cabinet-drawer').dataset.open),'false','keyboard focus preserves the closed drawer');
     assert.equal(await page.eval(()=>document.querySelector('.drawer-front').getAttribute('aria-expanded')),'false','focus does not open notes');
     assert.equal(await page.eval(()=>getComputedStyle(document.querySelector('.drawer-front')).transitionDuration),'0s');
-    await page.send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+    await page.send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r'});
     await page.send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
     await sleep(100);
     assert.equal(await page.eval(()=>document.querySelector('.drawer-front').getAttribute('aria-expanded')),'true','Enter opens the notes');

@@ -1,0 +1,10 @@
+.talking-avatar { --tilt-x:0deg; --tilt-y:0deg; position:relative; width:100%; perspective:900px; }
+.talking-avatar svg { display:block; width:100%; height:auto; overflow:hidden; transform:rotateY(var(--tilt-x)) rotateX(var(--tilt-y)); }
+.talking-avatar.is-framed { max-width:360px; margin:14px auto 8px; }
+.talking-avatar.is-framed svg { aspect-ratio:324/371; border-radius:4px; box-shadow:0 18px 30px -18px #2d2a2455; }
+.talking-avatar.is-standing svg { aspect-ratio:424/371; transform-origin:50% 100%; }
+.talking-avatar .avatar-backdrop { fill:#a7aaa3; }
+.talking-avatar-hit { position:absolute; inset:0; z-index:1; width:100%; padding:0; border:0; border-radius:4px; background:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.talking-avatar.is-standing .talking-avatar-hit { inset:4% 22% 0; width:auto; border-radius:40% 40% 0 0; }
+.talking-avatar-hit:focus-visible { outline:3px solid #b93c24; outline-offset:5px; }
+@media(prefers-reduced-motion:reduce) { .talking-avatar svg { transform:none; } }

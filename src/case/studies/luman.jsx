@@ -1,60 +1,306 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../styles/luman.css';
-import { CasePage, CaseHero, Chapter, Prose, Statement, Split, Shot, Reel, Decision, CodeNote, Timeline, Numbers, Stage3D } from '../kit.jsx';
+import { CasePage, CaseHero, Chapter, Prose, Statement, Split, Decision, CodeNote, Ledger, Timeline, Numbers } from '../kit.jsx';
+import useReducedMotion from '../../useReducedMotion.js';
 
-const heroScene = () => import('../scenes/lumanHero.js');
-const chapterScene = () => import('../scenes/luman.js');
+/* ---------- The desk: Classic and Godmode, rebuilt from lumanv1 ----------
+   Geometry, colours and behaviour are read from the repository:
+   lib/os/window-store.ts (cascade 32px from 132,72; blobs 46px bottom-right),
+   lib/voice/layout.ts (tile(), the five named layouts), lib/os/use-base-layout.ts
+   (the first-visit 2x2 seed), components/os/* (dock, frame) and
+   components/transitions/god-mode-transition.tsx (the dust). Content is sample. */
+const VW = 1200, VH = 720;
+const YELLOW = '#FBBF24', MINT = '#A7F3D0', CREAM = '#FDFBF7';
+const TINT = { note: '#8FB8AC', chat: '#C3A6D8', tasks: '#E0A458', calendar: '#7FA5C4', workspace: '#E8B4B8', whiteboard: '#F2C9A0', files: '#D7D3C8' };
+const SIZE = { note: [720, 560], chat: [460, 620], tasks: [640, 580], calendar: [860, 600], workspace: [520, 560], whiteboard: [820, 600], files: [620, 520] };
+const TITLE = { note: 'Week 32 planning', chat: '# general', tasks: 'My tasks', calendar: 'Calendar', workspace: 'Launch', whiteboard: 'Launch board', files: 'Files' };
+const LAYOUTS = {
+  focus: ['note'], planning: ['tasks', 'calendar', 'note'], comms: ['chat', 'tasks'],
+  review: ['note', 'whiteboard', 'tasks'], everything: ['tasks', 'calendar', 'note', 'chat', 'files'],
+};
+const LAYOUT_WORDS = [[['focus'], 'focus'], [['planning', 'plan'], 'planning'], [['comms', 'communication'], 'comms'], [['review'], 'review'], [['everything', 'all apps'], 'everything']];
+const TARGET_WORDS = [[['task', 'tasks', 'todo', 'todos'], 'tasks'], [['calendar', 'schedule', 'agenda'], 'calendar'], [['file', 'files', 'drive'], 'files'], [['whiteboard', 'board', 'canvas'], 'whiteboard'], [['chat', 'channel', 'messages', 'channels'], 'chat'], [['workspace', 'workspaces'], 'workspace'], [['note', 'notes', 'doc', 'docs'], 'note']];
 
-const TOOLS = {
-  docs: { name: 'Docs', body: 'A Tiptap editor with slash commands, an AI assistant, Markdown and DOCX import and export, and share links with role-gated visibility.' },
-  tasks: { name: 'Tasks', body: 'A kanban board with three states: todo, doing, done. The voice agent can add and move cards.' },
-  calendar: { name: 'Calendar', body: 'Events, reminders and tasks live in one events table, so a task with a date is a calendar entry.' },
-  chat: { name: 'Chat', body: 'Channels with threads, reactions and @mentions. A mention sets a red badge on the dock.' },
-  whiteboard: { name: 'Whiteboard', body: 'Exactly one board per organisation and one per workspace, enforced by unique indexes, not by the UI.' },
+function tile(count) {
+  const area = { x: 116, y: 56, w: VW - 116 - 24, h: VH - 56 - 24 }, G = 12;
+  if (count === 1) return [{ x: area.x, y: area.y, w: area.w, h: area.h }];
+  if (count === 2) { const w = (area.w - G) / 2; return [{ x: area.x, y: area.y, w, h: area.h }, { x: area.x + w + G, y: area.y, w, h: area.h }]; }
+  if (count === 3) { const w = (area.w - G) / 2, h = (area.h - G) / 2; return [{ x: area.x, y: area.y, w, h: area.h }, { x: area.x + w + G, y: area.y, w, h }, { x: area.x + w + G, y: area.y + h + G, w, h }]; }
+  const cols = count <= 4 ? 2 : 3, rows = Math.ceil(count / cols), w = (area.w - G * (cols - 1)) / cols, h = (area.h - G * (rows - 1)) / rows;
+  return Array.from({ length: count }, (_, i) => ({ x: area.x + (i % cols) * (w + G), y: area.y + Math.floor(i / cols) * (h + G), w, h }));
+}
+function cascadeRect(kind, n) {
+  const [sw, sh] = SIZE[kind], off = (n % 6) * 32, left = 132 + off, top = 72 + off;
+  return { x: Math.min(left, Math.max(132, VW - sw - 40)), y: Math.min(top, Math.max(72, VH - sh - 40)), w: Math.min(sw, VW - left - 40), h: Math.min(sh, VH - top - 40) };
+}
+// First visit: Tasks, Calendar, the org channel and the first workspace in a 2x2 grid (use-base-layout.ts).
+function seed() {
+  const cw = (VW - 132 - 40 - 16) / 2, ch = (VH - 72 - 40 - 16) / 2;
+  return ['tasks', 'calendar', 'chat', 'workspace'].map((kind, i) => ({ kind, min: false, max: false, z: i + 1, x: 132 + (i % 2) * (cw + 16), y: 72 + Math.floor(i / 2) * (ch + 16), w: cw, h: ch }));
+}
+function parse(input) {
+  const text = input.toLowerCase().replace(/[^a-z\s,]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!text) return null;
+  for (const [words, name] of LAYOUT_WORDS) if (words.some(w => new RegExp(`\\b${w}\\b`).test(text))) return { layout: name, kinds: LAYOUTS[name] };
+  const kinds = [];
+  for (const part of text.split(/\s+(?:and|then|plus|also)\s+|,\s*/)) for (const [words, kind] of TARGET_WORDS) if (words.some(w => new RegExp(`\\b${w}\\b`).test(part)) && !kinds.includes(kind)) { kinds.push(kind); break; }
+  return kinds.length ? { layout: null, kinds } : null;
+}
+
+function useFit(ref) {
+  const [scale, setScale] = useState(.5);
+  useEffect(() => {
+    const node = ref.current; if (!node) return undefined;
+    const fit = () => setScale(node.clientWidth / VW);
+    fit(); const ro = new ResizeObserver(fit); ro.observe(node); return () => ro.disconnect();
+  }, [ref]);
+  return scale;
+}
+
+const Ico = ({ d, size = 18 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{d}</svg>;
+const ICON = {
+  search: <><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></>,
+  agent: <path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/>,
+  workspace: <><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></>,
+  chat: <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/>,
+  whiteboard: <><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></>,
+  voice: <><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></>,
+  tasks: <><path d="m4 7 2 2 4-4M4 17l2 2 4-4M14 7h6M14 17h6"/></>,
+  calendar: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></>,
+  files: <path d="M4 4h6l2 3h8v13H4z"/>,
+  note: <><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></>,
 };
 
-const fallback = <svg viewBox="0 0 400 300" role="img" aria-label="Five workspace tiles in a dashboard grid"><rect x="20" y="30" width="170" height="120" fill="#f4f1ea"/><rect x="200" y="30" width="90" height="120" fill="#f4f1ea"/><rect x="300" y="30" width="80" height="120" fill="#f4f1ea"/><rect x="20" y="160" width="175" height="110" fill="#f4f1ea"/><rect x="205" y="160" width="175" height="110" fill="#f4f1ea"/></svg>;
+function WinBody({ kind }) {
+  if (kind === 'tasks') return <div className="lmd-kanban">{[['Todo', ['Send board update', 'Book venue']], ['Doing', ['Review hiring plan']], ['Done', ['Draft launch goals', 'Pick a name']]].map(([col, cards]) => <div key={col}><b>{col}</b>{cards.map(c => <span key={c}>{c}</span>)}</div>)}</div>;
+  if (kind === 'calendar') return <div className="lmd-cal">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((d, i) => <div key={d}><b>{d}</b>{i === 0 && <span style={{ background: MINT }}>Stand-up</span>}{i === 1 && <span style={{ background: YELLOW }}>Review hiring plan</span>}{i === 3 && <span style={{ background: '#C9DAF0' }}>Send board update</span>}{i === 4 && <span style={{ background: MINT }}>Demo</span>}</div>)}</div>;
+  if (kind === 'chat') return <div className="lmd-chat"><p><b>Maya</b> Moving the demo to Friday.</p><p><b>Arjun</b> Fine by me. <em>@Priya</em> can you take the board update?</p><p><b>Priya</b> On it, adding it to tasks now.</p><div className="lmd-compose">Message # general</div></div>;
+  if (kind === 'workspace') return <div className="lmd-ws">{['Week 32 planning', 'Launch checklist', 'Press kit', 'Hiring plan'].map(t => <span key={t}><Ico d={ICON.note} size={14}/>{t}</span>)}</div>;
+  if (kind === 'whiteboard') return <div className="lmd-board">{[['Pricing page', YELLOW, 8, 10], ['Onboarding email', MINT, 40, 22], ['Demo video', '#C9DAF0', 18, 52], ['Launch tweet', '#F5C6CB', 58, 58]].map(([t, c, x, y]) => <span key={t} style={{ background: c, left: `${x}%`, top: `${y}%` }}>{t}</span>)}</div>;
+  if (kind === 'files') return <div className="lmd-files">{['press-kit.pdf', 'logo-final.svg', 'roadmap.docx', 'board-deck.pdf'].map(f => <span key={f}><Ico d={ICON.files} size={14}/>{f}</span>)}</div>;
+  return <div className="lmd-note"><h5>Week 32 planning</h5><p>Ship the onboarding email before the demo on Friday. Arjun owns the deck; Priya takes the board update.</p><p>Open questions: venue for the launch, and whether pricing goes live with it.</p><p className="lmd-presence"><i/>Priya is also here</p></div>;
+}
 
-/* ---------- Hero: the 3D workspace with a mode toggle ---------- */
-function HeroStage() {
-  const ref = useRef(null);
-  const [mode, setMode] = useState('classic');
-  const [tool, setTool] = useState(null);
-  const set = next => { setMode(next); ref.current?.send('mode', next); };
-  const info = TOOLS[tool];
-  return <div className="lm-hero-stage">
-    <Stage3D ref={ref} scene={heroScene} eager label="Five ceramic tool tiles: Docs, Tasks, Calendar, Chat and Whiteboard, arranged as a dashboard or lifted into floating windows" fallback={fallback}
-      onEvent={(name, payload) => { if (name === 'hover' && payload) setTool(payload); if (name === 'pick') setTool(payload); if (name === 'mode') setMode(payload ? 'godmode' : 'classic'); }}/>
-    <div className="lm-hero-controls" data-reveal>
-      <div className="case-controls" role="group" aria-label="Shell">
-        <button type="button" className="case-chip" aria-pressed={mode === 'classic'} onClick={() => set('classic')}>Classic dashboard</button>
-        <button type="button" className="case-chip" aria-pressed={mode === 'godmode'} onClick={() => set('godmode')}>Godmode</button>
+function Desk({ windows, setWindows, focused, setFocused, interactive, scale, onDock, overlay }) {
+  const drag = useRef(null);
+  const raise = i => { setWindows(ws => { const top = Math.max(0, ...ws.map(w => w.z)) + 1; return ws.map((w, j) => j === i ? { ...w, z: top } : w); }); setFocused(i); };
+  const down = (e, i) => {
+    if (!interactive || windows[i].max) return;
+    raise(i);
+    drag.current = { i, sx: e.clientX, sy: e.clientY, ox: windows[i].x, oy: windows[i].y };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+  const move = e => {
+    const d = drag.current; if (!d) return;
+    const x = Math.max(-200, Math.min(VW - 80, d.ox + (e.clientX - d.sx) / scale)), y = Math.max(0, Math.min(VH - 40, d.oy + (e.clientY - d.sy) / scale));
+    setWindows(ws => ws.map((w, j) => j === d.i ? { ...w, x, y, dragged: true } : w));
+  };
+  const up = () => { drag.current = null; };
+  const act = (i, what) => setWindows(ws => ws.map((w, j) => j !== i ? w : what === 'min' ? { ...w, min: true } : what === 'max' ? { ...w, max: !w.max } : null).filter(Boolean));
+  let blob = 0;
+  return <div className="lmd-desk" style={{ width: VW, height: VH, transform: `scale(${scale})` }} onPointerMove={move} onPointerUp={up} onPointerLeave={up}>
+    <div className="lmd-grid" aria-hidden="true"/>
+    <nav className="lmd-dock" aria-label="Dock">
+      {[['search', 'Search ⌘K', true], ['agent', 'Voice agent ⌘J']].map(([k, label, accent]) => <button key={k} type="button" tabIndex={interactive ? 0 : -1} aria-label={label} className={accent ? 'is-accent' : ''} onClick={() => interactive && onDock?.(k)}><Ico d={ICON[k]}/></button>)}
+      <i/>
+      {[['workspace', 'Workspaces'], ['chat', 'Channels'], ['whiteboard', 'Whiteboards'], ['voice', 'Voice calls'], ['tasks', 'My tasks'], ['calendar', 'Calendar'], ['files', 'Files']].map(([k, label]) => <button key={k} type="button" tabIndex={interactive ? 0 : -1} aria-label={label} onClick={() => interactive && onDock?.(k)}><Ico d={ICON[k]}/>{k === 'chat' && <em className="lmd-badge"/>}</button>)}
+    </nav>
+    {windows.map((w, i) => w.min ? null : <section key={w.kind} className={`lmd-win ${focused === i ? 'is-focused' : ''} ${w.dragged ? 'is-dragged' : ''}`} style={w.max ? { left: 116, top: 56, width: VW - 140, height: VH - 80, zIndex: w.z } : { left: w.x, top: w.y, width: w.w, height: w.h, zIndex: w.z }} onPointerDown={() => interactive && focused !== i && raise(i)} aria-label={TITLE[w.kind]}>
+      <header onPointerDown={e => down(e, i)} onDoubleClick={() => interactive && act(i, 'max')}>
+        <span>{TITLE[w.kind]}</span>
+        {['min', 'max', 'close'].map(a => <button key={a} type="button" tabIndex={interactive ? 0 : -1} aria-label={`${a === 'min' ? 'Minimise' : a === 'max' ? 'Maximise' : 'Close'} ${TITLE[w.kind]}`} onPointerDown={e => e.stopPropagation()} onClick={() => interactive && act(i, a)}>{a === 'min' ? '–' : a === 'max' ? '□' : '×'}</button>)}
+      </header>
+      <div className="lmd-win-body"><WinBody kind={w.kind}/></div>
+    </section>)}
+    {windows.map((w, i) => !w.min ? null : <button key={`b-${w.kind}`} type="button" tabIndex={interactive ? 0 : -1} className="lmd-blob" aria-label={`Restore ${TITLE[w.kind]}`} style={{ left: VW - 20 - 46, top: VH - 20 - 46 - (blob++) * 56, background: TINT[w.kind] }} onClick={() => { if (!interactive) return; setWindows(ws => { const top = Math.max(0, ...ws.map(x => x.z)) + 1; return ws.map((x, j) => j === i ? { ...x, min: false, z: top } : x); }); setFocused(i); }}><Ico d={ICON[w.kind]}/></button>)}
+    {overlay}
+  </div>;
+}
+
+function Classic({ scale, onGod }) {
+  return <div className="lmd-classic" style={{ width: VW, height: VH, transform: `scale(${scale})` }}>
+    <aside className="lmc-side">
+      <b className="lmc-logo">LUMAN</b>
+      {['Dashboard', 'Tasks', 'Calendar', 'Chat', 'Admin', 'Settings'].map((n, i) => <span key={n} className={i === 0 ? 'is-on' : ''}>{n}</span>)}
+      <b className="lmc-head">Workspaces</b>
+      {['Launch', 'Ops', 'Design'].map((n, i) => <span key={n} className="lmc-ws"><i style={{ background: [YELLOW, MINT, '#93C5FD'][i] }}/>{n}</span>)}
+      <span className="lmc-note">Week 32 planning</span><span className="lmc-note">Launch checklist</span>
+    </aside>
+    <main className="lmc-main">
+      <span className="lmc-invite">Invite: K7Q2LM</span>
+      <div className="lmc-top"><div><h5>Welcome to Luman</h5><p>Manage your team, notes, and workspaces beautifully.</p></div>
+        <div className="lmc-actions"><button type="button" className="lmc-god" onClick={onGod} tabIndex={onGod ? 0 : -1}><span style={{ color: YELLOW, display: 'inline-flex' }}><Ico d={ICON.agent} size={16}/></span> God Mode</button><span className="lmc-btn">New folder</span></div></div>
+      <div className="lmc-bar"><span>Filter by workspace name…</span><em>Sort by</em><i>Name (A-Z)</i></div>
+      <div className="lmc-cards">{[['Launch', YELLOW, '6 notes'], ['Ops', MINT, '4 notes'], ['Design', '#93C5FD', '9 notes']].map(([n, c, m]) => <div key={n} style={{ background: c }}><b>{n}</b><span>{m}</span></div>)}</div>
+      <div className="lmc-lower">
+        <div className="lmc-panel"><b>My Tasks</b>{['Review hiring plan', 'Send board update', 'Book venue'].map(t => <span key={t}><i/>{t}</span>)}<em>Go to board →</em></div>
+        <div className="lmc-panel"><b>Upcoming Events</b>{[['Tue', 'Review hiring plan'], ['Thu', 'Send board update'], ['Fri', 'Demo']].map(([d, t]) => <span key={t}><u>{d}</u>{t}</span>)}</div>
       </div>
-      <p className="lm-hero-read" aria-live="polite">{info ? <><strong>{info.name}.</strong> {info.body}</> : 'Hover or tap a tile to read what it does. Drag to turn the whole workspace.'}</p>
+    </main>
+  </div>;
+}
+
+// The dust: one particle per cell of a 26 x 16 grid in the product's five colours, 900ms (god-mode-transition.tsx).
+function Dust({ run, onDone }) {
+  const canvas = useRef(null), done = useRef(onDone);
+  done.current = onDone;
+  useEffect(() => {
+    if (!run) return undefined;
+    const node = canvas.current, box = node.parentElement.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+    const width = box.width, height = box.height, ctx = node.getContext('2d');
+    node.width = width * dpr; node.height = height * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const palette = [YELLOW, MINT, '#F5F1E8', '#111111', CREAM], cols = 26, rows = 16, cw = width / cols, ch = height / rows, start = performance.now(), dur = 900, ps = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) ps.push({ x: c * cw + cw / 2 + (Math.random() - .5) * cw, y: r * ch + ch / 2 + (Math.random() - .5) * ch, s: 1.5 + Math.random() * 3.5, vx: (Math.random() - .5) * 60, vy: -40 - Math.random() * 90, col: palette[Math.floor(Math.random() * 5)], born: start + (r / rows) * 120 + (c / cols) * 180 + Math.random() * 160, life: dur * .55 + Math.random() * dur * .35 });
+    let raf = 0;
+    const draw = now => {
+      ctx.clearRect(0, 0, width, height);
+      for (const p of ps) { const t = now - p.born; if (t < 0) continue; const k = Math.min(1, t / p.life); if (k >= 1) continue; const e = 1 - (1 - k) ** 3; ctx.globalAlpha = 1 - k; ctx.fillStyle = p.col; const s = p.s * (1 - k * .6) * 1.6; ctx.fillRect(p.x + p.vx * e, p.y + p.vy * e, s, s); }
+      ctx.globalAlpha = 1;
+      if (now - start < dur + 200) raf = requestAnimationFrame(draw); else done.current?.();
+    };
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, [run]);
+  return <canvas ref={canvas} className="lmd-dust" aria-hidden="true"/>;
+}
+
+/* Hero: the classic dashboard, its God Mode button, the dust, the desktop. */
+function ShellSwitch() {
+  const reduced = useReducedMotion();
+  const box = useRef(null), scale = useFit(box);
+  const [mode, setMode] = useState('classic');
+  const [phase, setPhase] = useState('idle');
+  const [windows, setWindows] = useState(seed);
+  const [focused, setFocused] = useState(0);
+  const go = next => {
+    if (next === mode || phase !== 'idle') return;
+    if (next === 'classic' || reduced) { setMode(next); return; }
+    setPhase('dust');
+  };
+  return <div className="lm-switch">
+    <div className="lmd-frame" ref={box} style={{ height: VH * scale }} data-ui data-stage="ready">
+      {mode === 'classic'
+        ? <div className={phase === 'dust' ? 'lmd-dissolve' : ''}><Classic scale={scale} onGod={() => go('god')}/></div>
+        : <div className="lmd-materialize"><Desk windows={windows} setWindows={setWindows} focused={focused} setFocused={setFocused} interactive scale={scale}/></div>}
+      {phase === 'dust' && <Dust run onDone={() => { setMode('god'); setPhase('idle'); }}/>}
+    </div>
+    <div className="case-controls" role="group" aria-label="Dashboard">
+      <button type="button" className="case-chip" aria-pressed={mode === 'classic'} onClick={() => go('classic')}>Classic dashboard</button>
+      <button type="button" className="case-chip" aria-pressed={mode === 'god'} onClick={() => go('god')}>God Mode</button>
     </div>
   </div>;
 }
 
-/* ---------- Product, shown: annotated real screenshot ---------- */
-const HOT = [
-  { id: 'doc', label: 'Document editor', x: 11.8, y: 17.5, w: 43.5, h: 62, text: 'The editor is Tiptap. Typing / opens commands: /table inserts a table, /schedule pins an event to the calendar from inside a document.' },
-  { id: 'ai', label: 'AI assistant', x: 13.5, y: 57.5, w: 40.5, h: 19.5, text: 'An optional assistant lives under the document. It is optional on purpose: the app is a workspace first, a chatbot never.' },
-  { id: 'cal', label: 'Team schedule', x: 57.8, y: 17.5, w: 30.5, h: 30, text: 'The shared calendar is one table of events, reminders and tasks. Days with something on them are marked.' },
-  { id: 'items', label: 'Action items', x: 57.8, y: 49.5, w: 30.5, h: 28.5, text: 'Action items are tasks. Ticking one here changes the same row the kanban board shows.' },
-];
-function Hotspots() {
-  const [id, setId] = useState('doc');
-  const hot = HOT.find(h => h.id === id);
-  return <div className="lm-hot" data-reveal>
-    <figure className="lm-hot-fig">
-      <div className="lm-hot-frame" data-ui>
-        <img src="/cases/luman/desktop-1.jpg" alt="The live Luman home page showing a document editor with slash commands and an AI assistant beside a team schedule and action items" loading="lazy"/>
-        {HOT.map(h => <button key={h.id} type="button" className="lm-hot-spot" aria-pressed={id === h.id} aria-label={h.label} style={{ left: `${h.x}%`, top: `${h.y}%`, width: `${h.w}%`, height: `${h.h}%` }} onClick={() => setId(h.id)}/>)}
+/* The power demo: say a layout, watch the desk rearrange. */
+const SCRIPT = 'planning';
+function GodDemo() {
+  const reduced = useReducedMotion();
+  const host = useRef(null), box = useRef(null), scale = useFit(box);
+  const [windows, setWindows] = useState(seed);
+  const [focused, setFocused] = useState(0);
+  const [text, setText] = useState('');
+  const [said, setSaid] = useState('First visit: Tasks, Calendar, the org channel and a workspace, seeded in a 2x2 grid.');
+  const [count, setCount] = useState({ actions: 0, phrases: 0 });
+  const opened = useRef(4), played = useRef(false), timers = useRef([]);
+
+  const apply = (kinds, label) => {
+    const rects = tile(kinds.length);
+    setWindows(ws => {
+      let list = ws.map(w => ({ ...w, dragged: false }));
+      let top = Math.max(0, ...list.map(w => w.z));
+      kinds.forEach((kind, i) => {
+        const r = rects[i] ?? cascadeRect(kind, i), at = list.findIndex(w => w.kind === kind);
+        const next = { kind, x: r.x, y: r.y, w: r.w, h: r.h, min: false, max: false, z: 0 };
+        if (at >= 0) list[at] = { ...list[at], ...next }; else list.push(next);
+      });
+      // The first thing named ends on top, as it was spoken (execute.ts).
+      [...kinds].reverse().forEach(kind => { const at = list.findIndex(w => w.kind === kind); list[at] = { ...list[at], z: ++top }; });
+      setFocused(list.findIndex(w => w.kind === kinds[0]));
+      return list;
+    });
+    setCount(c => ({ actions: c.actions + kinds.length, phrases: c.phrases + 1 }));
+    setSaid(label);
+  };
+  const run = input => {
+    const parsed = parse(input);
+    if (!parsed) { setSaid(`Nothing to do for “${input}”. Try a layout name, or “tasks and calendar”.`); return; }
+    apply(parsed.kinds, parsed.layout ? `${parsed.layout[0].toUpperCase() + parsed.layout.slice(1)} layout: ${parsed.kinds.map(k => TITLE[k]).join(', ')}.` : `Opened and tiled ${parsed.kinds.map(k => TITLE[k]).join(', ')}.`);
+  };
+  const onDock = kind => {
+    if (kind === 'agent') { host.current?.querySelector('input')?.focus(); return; }
+    if (kind === 'search' || kind === 'voice') { setSaid(kind === 'search' ? '⌘K opens search across notes, tasks and people. Not rebuilt here.' : 'Voice calls open a room with presence and screen share. Not rebuilt here.'); return; }
+    setWindows(ws => {
+      const at = ws.findIndex(w => w.kind === kind), top = Math.max(0, ...ws.map(w => w.z)) + 1;
+      if (at >= 0) { setFocused(at); return ws.map((w, j) => j === at ? { ...w, min: false, z: top } : w); }
+      const r = cascadeRect(kind, opened.current++); setFocused(ws.length);
+      return [...ws, { kind, ...r, min: false, max: false, z: top }];
+    });
+    setCount(c => ({ ...c, actions: c.actions + 1 }));
+    setSaid(`Opened ${TITLE[kind]}, cascaded 32px from the last new window.`);
+  };
+  const reset = () => { timers.current.forEach(clearTimeout); setWindows(seed()); setFocused(0); setCount({ actions: 0, phrases: 0 }); opened.current = 4; setText(''); setSaid('Back to the seeded desk.'); };
+
+  // Plays once when it first comes into view: the agent is asked for "planning".
+  useEffect(() => {
+    const node = host.current;
+    const io = new IntersectionObserver(entries => {
+      if (!entries[0].isIntersecting || played.current) return;
+      played.current = true; io.disconnect();
+      if (reduced) { run(SCRIPT); return; }
+      SCRIPT.split('').forEach((_, i) => timers.current.push(setTimeout(() => setText(SCRIPT.slice(0, i + 1)), 900 + i * 90)));
+      timers.current.push(setTimeout(() => { run(SCRIPT); setText(''); }, 900 + SCRIPT.length * 90 + 400));
+    }, { threshold: .45 });
+    io.observe(node);
+    return () => { io.disconnect(); timers.current.forEach(clearTimeout); };
+  }, [reduced]);
+
+  const onScreen = windows.filter(w => !w.min).length;
+  return <div className="lm-god-demo" ref={host} data-reveal>
+    <div className="lmd-frame" ref={box} style={{ height: VH * scale }} data-ui>
+      <Desk windows={windows} setWindows={setWindows} focused={focused} setFocused={setFocused} interactive scale={scale} onDock={onDock}/>
+    </div>
+    <div className="lm-agent">
+      <form className="lm-agent-bar" data-ui onSubmit={e => { e.preventDefault(); if (text.trim()) { run(text); setText(''); } }}>
+        <label htmlFor="lm-agent-in"><span aria-hidden="true">⌘J</span><span className="lm-sr">Tell the agent what to set up</span></label>
+        <input id="lm-agent-in" value={text} onChange={e => setText(e.target.value)} placeholder="Say a layout" autoComplete="off"/>
+        <button type="submit">Run</button>
+      </form>
+      <div className="case-controls" role="group" aria-label="Named layouts">
+        {Object.keys(LAYOUTS).map(name => <button key={name} type="button" className="case-chip" onClick={() => run(name)}>{name[0].toUpperCase() + name.slice(1)}</button>)}
+        <button type="button" className="case-chip lm-reset" onClick={reset}>Reset</button>
       </div>
-      <figcaption className="case-caption">Real capture of luman.lucide.in. Press a region.</figcaption>
-    </figure>
-    <div className="lm-hot-text" aria-live="polite"><h3>{hot.label}</h3><p>{hot.text}</p>
-      <div className="case-controls">{HOT.map(h => <button key={h.id} type="button" className="case-chip" aria-pressed={id === h.id} onClick={() => setId(h.id)}>{h.label}</button>)}</div>
+      <p className="lm-agent-said" aria-live="polite">{said}</p>
+      <dl className="lm-agent-count">
+        <div><dt>Windows on screen</dt><dd>{onScreen}</dd></div>
+        <div><dt>Window moves done for you</dt><dd>{count.actions}</dd></div>
+        <div><dt>Page loads</dt><dd>0</dd></div>
+      </dl>
+    </div>
+  </div>;
+}
+
+/* The same job, counted step by step. Classic routes and Godmode actions are read from the code. */
+const JOB = [
+  { classic: ['Open the planning note', 'Sidebar → /workspace/launch/note/…', 1], god: ['Ask for the Planning layout', '⌘J “planning”: Tasks, Calendar and the note, tiled', 0] },
+  { classic: ['Check the week', 'Sidebar → /calendar. The note leaves the screen.', 1], god: ['Check the week', 'Calendar is already on screen beside the note.', 0] },
+  { classic: ['Re-read who owns what', 'Back to the note. The calendar leaves the screen.', 1], god: ['Re-read who owns what', 'The note never left.', 0] },
+  { classic: ['Move two tasks', 'Sidebar → /dashboard/tasks', 1], god: ['Move two tasks', 'In the Tasks window, next to the note.', 0] },
+  { classic: ['Tell the team', 'Sidebar → /messaging', 1], god: ['Tell the team', 'Channels in the dock: one window, one click.', 0] },
+];
+function SameJob() {
+  const [step, setStep] = useState(JOB.length - 1);
+  const upto = JOB.slice(0, step + 1);
+  const classicLoads = upto.reduce((n, s) => n + s.classic[2], 0);
+  return <div className="lm-job" data-reveal>
+    <div className="lm-job-track" role="tablist" aria-label="Steps of the job">
+      {JOB.map((s, i) => <button key={i} type="button" role="tab" aria-selected={i === step} onClick={() => setStep(i)}>{s.classic[0]}</button>)}
+    </div>
+    <div className="lm-job-cols">
+      {[['Classic dashboard', 'classic', classicLoads, 1], ['God Mode', 'god', 0, step === 0 ? 3 : step >= 4 ? 4 : 3]].map(([label, key, loads, visible]) => <div key={key} className={`lm-job-col is-${key}`}>
+        <h3>{label}</h3>
+        <ol>{JOB.map((s, i) => <li key={i} className={i <= step ? 'is-done' : ''} aria-current={i === step ? 'step' : undefined}><b>{s[key][0]}</b><span>{s[key][1]}</span></li>)}</ol>
+        <dl><div><dt>Route changes</dt><dd>{loads}</dd></div><div><dt>Tools on screen at once</dt><dd>{visible}</dd></div></dl>
+      </div>)}
     </div>
   </div>;
 }
@@ -156,19 +402,6 @@ function MiniWorkspace() {
   </div>;
 }
 
-/* ---------- Godmode chapter ---------- */
-function GodmodeStage() {
-  const ref = useRef(null);
-  const [mode, setMode] = useState('scroll');
-  const set = next => { setMode(next); ref.current?.send('mode', next); };
-  return <div className="lm-god" data-reveal>
-    <div className="case-stage-block is-tall"><Stage3D ref={ref} scene={chapterScene} label="The same five tiles. Scrolling lifts them out of the dashboard into floating windows with a dock and a dust burst" fallback={fallback}/></div>
-    <div className="case-controls" role="group" aria-label="Godmode drive">
-      {[['scroll', 'Scroll drives it'], ['classic', 'Classic'], ['godmode', 'Godmode']].map(([id, label]) => <button key={id} type="button" className="case-chip" aria-pressed={mode === id} onClick={() => set(id)}>{label}</button>)}
-    </div>
-  </div>;
-}
-
 /* ---------- Desktop sign-in sequence ---------- */
 const ACTORS = ['Desktop app', 'System browser', 'Google + Supabase', 'Embedded server'];
 const STEPS = [
@@ -223,41 +456,122 @@ function Findings() {
   </div>;
 }
 
+
 export default function Luman() {
   return <CasePage slug="luman" accent="#f2b800">
-    <CaseHero name="Luman" title="One shared workspace"
-      lede="Documents, tasks, a calendar, chat and whiteboards for one private team. On the web, on the desktop, and in a second shell I call Godmode."
-      facts={[{ label: 'Role', value: 'Product and engineering, solo' }, { label: 'Timeline', value: '11 Aug to 6 Sep 2026' }, { label: 'Stack', value: 'Next.js, Supabase, Electron' }, { label: 'Status', value: 'Live at luman.lucide.in' }]}
-      links={[{ href: 'https://luman.lucide.in', label: 'Open Luman' }, { href: '#signature', label: 'Try the workspace' }]}
-      stage={<HeroStage/>}/>
+    <CaseHero name="Luman" title="A page, or a desk."
+      lede="Luman is one workspace for a private team: docs, tasks, a calendar, chat and whiteboards. It has two dashboards. Classic gives each tool a page. God Mode is a desktop where all of them stay open at once."
+      facts={[{ label: 'Role', value: 'Product and engineering. I built God Mode; Dhruv worked on roles and the dashboard picker' }, { label: 'Timeline', value: '11 Aug to 6 Sep 2026' }, { label: 'Stack', value: 'Next.js, Supabase, Electron, Gemini Live' }, { label: 'Status', value: 'Live at luman.lucide.in' }]}
+      links={[{ href: 'https://luman.lucide.in', label: 'Open Luman' }, { href: '#power', label: 'Try God Mode' }]}
+      stage={<ShellSwitch/>}
+      note="Press God Mode inside the dashboard. Rebuilt from the repository; content is sample."/>
 
-    <Chapter id="problem" title="Five tabs" heading="A team's day lives in five tabs" tone="paper">
+    <Chapter id="why" title="Why" heading="Work happens across tools at once" tone="paper">
+      <Split>
+        <Statement>A planning meeting needs the note, the calendar, the task board and the team chat at the same time. Classic could only show one of them.</Statement>
+        <Prose>
+          <p>The classic dashboard is a good page. It has a sidebar with Dashboard, Tasks, Calendar, Chat, Admin and Settings, and every one of those is its own route. Opening the calendar means leaving the note. Checking the note again means leaving the calendar.</p>
+          <p>That is fine for one job at a time, and team work is rarely one job at a time. So on 14 August I merged a second shell: a desktop where notes, chats, tasks and calendars open as windows that sit side by side. Two days later it shipped as God Mode.</p>
+        </Prose>
+      </Split>
+      <div className="case-gap"/>
+      <ul className="lm-reasons" data-reveal>
+        <li><h3>Side by side, not one after another</h3><p>Every tool is a window on one route, so nothing has to close for something else to open.</p></li>
+        <li><h3>A surface an agent can arrange</h3><p>A voice agent that opens and tiles windows needs windows to tile. “One phrase for a whole working setup” is how the layout code describes it.</p></li>
+        <li><h3>The phone dashboard</h3><p>Classic never got a mobile layout and never will. A phone that opens /dashboard is sent to God Mode, which has its own mobile home, dock and full-screen windows.</p></li>
+        <li><h3>One load for the whole desk</h3><p>The desktop resolves the organisation once and hands it to every window, so five open windows do not cost five copies of the same requests.</p></li>
+      </ul>
+    </Chapter>
+
+    <Chapter id="look" title="Look" heading="The same team, two ways to hold it">
+      <Prose><p>Both dashboards read the same rows from the same database. What changes is how much of it you can hold at once.</p></Prose>
+      <div className="case-gap"/>
+      <div className="lm-compare" data-reveal>
+        <table>
+          <thead><tr><th scope="col"/><th scope="col">Classic</th><th scope="col">God Mode</th></tr></thead>
+          <tbody>
+            {[
+              ['Navigation', 'A sidebar rail of six pages and the workspace tree', 'A dock: search, the agent, then workspaces, channels, whiteboards, calls, tasks, calendar and files'],
+              ['Tools on screen', 'One page at a time', 'As many windows as you open, eleven kinds of them'],
+              ['Switching', 'A route change; each page fetches its own data', 'Focus a window. The route never changes'],
+              ['Arranging', 'Not applicable', 'Drag, maximise, minimise to blobs, or ask for a layout'],
+              ['Search', 'Filter workspaces and notes on the dashboard', '⌘K from anywhere; ⌘D clears the desk; ⌘J talks to the agent'],
+              ['Settings', 'A /settings page', 'A window, so opening it never drops you out of God Mode'],
+              ['On a phone', 'Redirects to God Mode', 'Mobile home, dock and full-screen windows'],
+            ].map(([row, a, b]) => <tr key={row}><th scope="row">{row}</th><td>{a}</td><td>{b}</td></tr>)}
+          </tbody>
+        </table>
+      </div>
+    </Chapter>
+
+    <Chapter id="power" title="Power" heading="One sentence sets up the desk" tone="ink" wide>
       <Split>
         <Prose>
-          <p>A small team writes in one app, tracks work in another, schedules in a third, talks in a fourth and sketches in a fifth. Every hand-off is a copy and paste.</p>
-          <p>Luman puts them in one organisation. A task is a row. The calendar shows that row. A document can pin an event. Chat can mention the person who owns it.</p>
-          <p>The decision that shaped everything after: <strong>who may see a row is decided in the database</strong>, not in the screens. Every tool inherits it.</p>
+          <p>This is God Mode as the code lays it out: the dock on the left, windows with yellow title bars when focused, blobs bottom right when minimised. It starts the way a first visit does, with Tasks, Calendar, the team channel and a workspace in a two by two grid.</p>
+          <p>Then the agent is asked for planning. Drag a title bar, minimise a window, open more from the dock, or type a layout yourself.</p>
         </Prose>
-        <Shot src="/cases/luman/desktop-0.jpg" alt="Luman landing page: Organize your ideas, coordinate your team" caption="The live landing page. Its own look is bold on purpose; this page keeps mine." address="luman.lucide.in" priority/>
+        <Prose>
+          <p>The five named layouts are the real ones. Focus is one note at full size. Planning is Tasks, Calendar and the note. Comms is chat and tasks. Review is the note, the whiteboard and tasks. Everything is five windows.</p>
+          <p>The tiling is the real rule too. Two windows go side by side. Three become one tall window with two stacked beside it, the first one named getting the big tile. Four make quarters. Typed phrases go through the same narrow word list the app falls back to offline.</p>
+        </Prose>
+      </Split>
+      <div className="case-gap"/>
+      <GodDemo/>
+      <div className="case-gap"/>
+      <Split>
+        <CodeNote file="lib/voice/layout.ts" language="ts" caption="The five named layouts. A slot names a kind, not a document, so “focus” means the note you are actually working on." code={`export const LAYOUTS = {
+  focus:      { label: "Focus",      items: [{ target: "note" }] },
+  planning:   { label: "Planning",   items: [{ target: "tasks" }, { target: "calendar" }, { target: "note" }] },
+  comms:      { label: "Comms",      items: [{ target: "chat" }, { target: "tasks" }] },
+  review:     { label: "Review",     items: [{ target: "note" }, { target: "whiteboard" }, { target: "tasks" }] },
+  everything: { label: "Everything", items: [{ target: "tasks" }, { target: "calendar" },
+                                             { target: "note" }, { target: "chat" }, { target: "files" }] },
+};`}/>
+        <Prose>
+          <p>The agent runs on Gemini Live and has 20 tools. Six of them arrange the desk: open, close, arrange, apply a layout, control a window and open search. The rest do the work itself: create and write notes, send a message, create and move tasks, create and cancel events.</p>
+          <p>So “planning, then move the board update to Thursday and tell the team” is one spoken request and not a tour of four pages. When the model cannot be reached, a local parser still understands the plain phrases and refuses anything it would have to guess.</p>
+        </Prose>
       </Split>
     </Chapter>
 
-    <Chapter id="product" title="Product" heading="Docs, calendar and tasks side by side">
-      <Hotspots/>
+    <Chapter id="saved" title="Time saved" heading="The same job, counted" tone="paper">
+      <Split>
+        <Prose>
+          <p>I have no analytics on Luman, so I will not put a number of minutes on this. What I can count is the work the interface asks of you for the same job: plan the week from last week’s note, check the calendar, move two tasks, tell the team.</p>
+          <p>The number of clicks barely changes. What changes is how often the screen is taken away from you, and how much of the job you can see while you do it.</p>
+        </Prose>
+        <Statement>Classic asks for five route changes and shows one tool at a time. God Mode asks for none and keeps four on screen.</Statement>
+      </Split>
       <div className="case-gap"/>
-      <Reel label="More of the live site" shots={[
-        { src: '/cases/luman/desktop-2.jpg', alt: 'Feature cards for smart shortcuts, safe team roles and easy file sharing', caption: 'Roles are a product feature, not a settings page. Founders hold admin control; members read or write.', address: 'luman.lucide.in' },
-        { src: '/cases/luman/mobile-1.jpg', alt: 'Luman on a phone', frame: 'phone', caption: 'The same page on a phone.' },
-      ]}/>
+      <SameJob/>
     </Chapter>
 
-    <Chapter id="signature" title="One task" heading="One task, three places, one rulebook" tone="paper" wide>
-      <Prose><p>Add a task below. It lands in Tasks, on the Calendar and in Chat. Then change who you are. Every dimmed row is a row the real policies would not return.</p></Prose>
+    <Chapter id="team" title="Collaboration" heading="Everyone on one desk, seeing only their share" wide>
+      <Split>
+        <Prose>
+          <p>God Mode is personal: each person arranges their own desk. What sits in the windows is shared by the whole organisation, and four things make it feel shared.</p>
+        </Prose>
+        <ul className="lm-reasons is-tight">
+          <li><h3>Presence</h3><p>Open a note and you see who else has it open. “Priya is also here” before you type is what stops two people editing the same paragraph.</p></li>
+          <li><h3>Live notes</h3><p>A note learns the moment someone else saves it. If two saves still collide, the API answers 409 rather than overwriting.</p></li>
+          <li><h3>Calls in a window</h3><p>Voice rooms with screen share, on the web and in the Electron app, which needs its own source picker.</p></li>
+          <li><h3>Mentions that find you</h3><p>An @mention puts a red badge on the dock’s Channels button, wherever you are on the desk.</p></li>
+        </ul>
+      </Split>
+      <div className="case-gap"/>
+      <Prose><p>All of it obeys one rulebook, enforced in Postgres and not in the screens. Add a task below, then change who you are. Every dimmed row is a row the real policies would not return, in Classic and in God Mode alike.</p></Prose>
       <div className="case-gap"/>
       <MiniWorkspace/>
       <div className="case-gap"/>
       <Split>
-        <Prose><p>The rules are the ones in <code className="lm-inline">check_note_visibility</code> and <code className="lm-inline">can_see_workspace</code>. A note is public to members, gated by hierarchy level where a lower number is more authority, or limited to specific roles. A task or event is visible when its workspace is.</p><p>The fixed tiers are founder, admin and intern. Organisations can also define their own ladder, and the same comparison runs on levels.</p></Prose>
+        <CodeNote file="lib/os/use-note-live-updates.ts" language="ts" caption="Live updates had to pass the same visibility check per subscriber. Without the second migration the channel connected and silently received nothing." code={`// Subscribes to Postgres changes on this one note. Two migrations make this
+// actually deliver events, not just connect:
+//   - 035_notes_realtime.sql adds \`notes\` to the supabase_realtime
+//     publication (necessary, not sufficient on its own).
+//   - 037_notes_replica_identity_full.sql sets REPLICA IDENTITY FULL, which
+//     is what lets Realtime evaluate check_note_visibility per subscriber at
+//     all — without it, a channel reports SUBSCRIBED and silently receives
+//     nothing for every authenticated (non-service-role) client.`}/>
         <CodeNote file="supabase/migrations/028_close_rls_gaps.sql" language="sql" code={`  if v_visibility_mode = 'public' then
     return true;
   end if;
@@ -270,70 +584,40 @@ export default function Luman() {
     return (v_member_role_id is not null and v_specific_role_ids is not null and v_member_role_id = any(v_specific_role_ids));
   end if;
 
-  return false;`} caption="The last three branches of the function the notes policies call. It ends in false: anything unknown is hidden."/>
+  return false;`} caption="The last branches of the function the notes policies call. It ends in false: anything unknown is hidden."/>
       </Split>
     </Chapter>
 
-    <Chapter id="godmode" title="Godmode" heading="Godmode turns the app into a desk" tone="ink" wide>
-      <Prose>
-        <p>The classic dashboard is a page. Godmode is a desktop: notes, chat, tasks and calendars open as windows you drag, maximise and minimise to a dock. A dependency-free reducer holds the window stack.</p>
-        <p>Switching is a state change, so it should feel like one. The page breaks into dust: one particle per cell of a 26 by 16 grid, in the product's five colours, then the route swaps as it clears.</p>
-        <p>Scroll to lift the tiles. The left rail becomes the dock. The dust is the real recipe, rebuilt in 3D.</p>
-      </Prose>
-      <div className="case-gap"/>
-      <GodmodeStage/>
-      <div className="case-gap"/>
-      <CodeNote file="components/transitions/god-mode-transition.tsx" language="tsx" code={`    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const delay = (r / rows) * 120 + (c / cols) * 180 + Math.random() * 160;
-        particles.push({
-          x: c * cellW + cellW / 2 + (Math.random() - 0.5) * cellW,
-          y: r * cellH + cellH / 2 + (Math.random() - 0.5) * cellH,
-          size: 1.5 + Math.random() * 3.5,
-          vx: (Math.random() - 0.5) * 60,
-          vy: -40 - Math.random() * 90,
-          color: palette[Math.floor(Math.random() * palette.length)],
-          born: start + delay,
-          life: durationMs * 0.55 + Math.random() * durationMs * 0.35,
-        });
-      }
-    }`} caption="A canvas, not DOM nodes: four hundred elements would mean four hundred style recalculations a frame."/>
-    </Chapter>
-
-    <Chapter id="decisions" title="Decisions" heading="Three calls I would defend">
-      <Decision title="Where should permissions live?" chosen="db"
-        problem="Roles can be fixed (founder, admin, intern) or a custom ladder. Visibility depends on both."
+    <Chapter id="decisions" title="Decisions" heading="The calls behind God Mode" tone="paper">
+      <Decision title="Replace the classic dashboard, or run beside it?" chosen="beside"
+        problem="God Mode was a new shell for the same data. Some people think in pages, and Classic already worked."
         options={[
-          { id: 'db', label: 'Row level security', body: 'Policies call small security-definer functions. Any client that reaches Postgres gets the same answer.', cost: 'Bugs are silent. A too-narrow policy returns zero rows, which looks like data loss. Migrations 005, 006, 009, 010 and 017 are all fixes to this layer.' },
-          { id: 'app', label: 'Filter in API routes', body: 'It is what I started with for workspaces: fetch, then filter in JavaScript.', cost: 'Data has already crossed the network, and every new code path must remember the rule. My own security review flagged it, and migration 027 replaced it.' },
+          { id: 'beside', label: 'A second route', body: 'God Mode lives at /dashboard2 so the two could be compared side by side while it was built. On a desktop the dashboard asks which one you want every time it opens, and the God Mode button dissolves the page into it. Phones always get God Mode.', cost: 'Two dashboards to maintain on desktop. Anything added to one has to be asked of the other.' },
+          { id: 'replace', label: 'Replace /dashboard', body: 'One dashboard, one codebase path.', cost: 'Everyone who liked the page loses it on the same day, before the desk had earned it.' },
+        ]}/>
+      <Decision title="Where does a new window open?" chosen="cascade"
+        problem="Windows open one at a time from the dock, and several at once from the agent."
+        options={[
+          { id: 'cascade', label: 'Cascade, tile batches', body: 'One at a time, each new window steps 32px down and right from the top-left of the free area, clear of the dock. A batch from the agent is tiled instead, by the rule above.', cost: 'Two placement systems. The tiler had to share the dock’s geometry so the edges line up.' },
+          { id: 'centre', label: 'Centre every window', body: 'The obvious default.', cost: 'Each new window lands exactly on top of the last one. The code calls it the most disorienting thing a window manager can do.' },
+          { id: 'tile', label: 'Always tile', body: 'Every window gets a slot.', cost: 'Opening one more window would reshuffle everything you had arranged.' },
+        ]}/>
+      <Decision title="Where does a minimised window go?" chosen="blobs"
+        problem="Minimised windows need to stay findable without crowding the dock, which is for launching things."
+        options={[
+          { id: 'blobs', label: 'Blobs on the desk', body: 'Round 46px blobs stack bottom right, tinted by kind so three minimised chats are still told apart. Drag one and it stays where you put it.', cost: 'A new object to learn, and blobs can cover a window’s corner.' },
+          { id: 'pills', label: 'Pills in the dock', body: 'Like a taskbar.', cost: 'A minimised note would sit in the dock as if it were an app, next to Workspaces.' },
         ]}/>
       <Decision title="How does a desktop app sign in?" chosen="browser"
-        problem="The embedded server runs on a random loopback port, which Google and Supabase cannot whitelist."
+        problem="The Electron build runs its server on a random loopback port, which Google and Supabase cannot whitelist."
         options={[
-          { id: 'browser', label: 'Browser, then deep link', body: 'Sign-in happens in the system browser. Tokens return over luman:// and are installed by the embedded server.', cost: 'The user needs a real browser. Also, the tokens travel in a link query string. A one-time code would be tighter.' },
+          { id: 'browser', label: 'Browser, then deep link', body: 'Sign-in happens in the system browser. Tokens return over luman:// and are installed by the embedded server.', cost: 'The user needs a real browser. The tokens travel in a link query string; a one-time code would be tighter.' },
           { id: 'webview', label: 'Embedded webview', body: 'Keep sign-in inside the window.', cost: 'Providers dislike it, the user is rarely signed in there, and the PKCE verifier lives with whoever started the flow.' },
-        ]}/>
-      <Decision title="What ships in the installer?" chosen="delegate"
-        problem="An Electron package is an archive, not a vault. Some routes need the service-role key or paid AI keys."
-        options={[
-          { id: 'delegate', label: 'Keep secrets home', body: 'The desktop build never loads them. A route that needs one forwards the request to the deployed backend with the user\'s own access token.', cost: 'Those features need the network. The set of delegated routes is greppable on purpose, not hidden in middleware.' },
-          { id: 'bundle', label: 'Bundle the keys', body: 'Simplest, and works offline.', cost: 'Extracting an installer takes seconds. This is the same as publishing the key.' },
         ]}/>
     </Chapter>
 
-    <Chapter id="desktop" title="Desktop sign-in" heading="The browser signs in, the app receives" tone="paper" wide>
+    <Chapter id="desktop" title="Desktop sign-in" heading="The browser signs in, the app receives" wide>
       <Sequence/>
-      <div className="case-gap"/>
-      <CodeNote file="electron/main.js" language="js" code={`  const accessToken = parsed.searchParams.get('access_token');
-  const refreshToken = parsed.searchParams.get('refresh_token');
-  const org = parsed.searchParams.get('org');
-
-  if (accessToken && refreshToken) {
-    const target = new URL(\`http://127.0.0.1:\${resolvedPort}/auth/desktop-session\`);
-    target.searchParams.set('access_token', accessToken);
-    target.searchParams.set('refresh_token', refreshToken);
-    if (org) target.searchParams.set('org', org);
-    mainWindow.loadURL(target.toString());`} caption="Inside handleDeepLink. A link can arrive before the window exists, so it is held and replayed once the server is up."/>
     </Chapter>
 
     <Chapter id="security" title="Security review" heading="I reviewed my own app and fixed it" tone="ink">
@@ -345,32 +629,43 @@ export default function Luman() {
 
     <Chapter id="numbers" title="Numbers" heading="What the repository says">
       <Numbers items={[
-        { label: 'SQL migrations', value: '38', note: 'Numbered 001 to 038, plus three older unnumbered files.' },
-        { label: 'API route files', value: '52', note: 'Under app/api in the Next.js app.' },
-        { label: 'Commits', value: '40', note: '11 August to 6 September 2026.' },
-        { label: 'E2E spec files', value: '3', note: 'Playwright. I do not have a test count.' },
+        { label: 'kinds of window', value: '11', note: 'Note, chat, tasks, calendar, workspace, whiteboard, voice, settings, search, files, media.' },
+        { label: 'tools the agent can call', value: '20', note: 'Six arrange the desk; the rest do the work.' },
+        { label: 'named layouts', value: '5', note: 'Focus, planning, comms, review, everything.' },
+        { label: 'days from merge to God Mode', value: '2', note: 'OS shell merged 14 Aug; enabled 16 Aug.' },
+      ]}/>
+      <div className="case-gap"/>
+      <Ledger mineTitle="What is mine" othersTitle="What is Dhruv’s" mine={[
+        '34 of the 40 commits in lumanv1.',
+        'God Mode: the window store, the desktop, dock and blobs, the layouts and tiling, the agent’s tools and the dust transition.',
+        'Presence, live note updates, calls, the desktop sign-in and the security review.',
+      ]} others={[
+        'Six commits, including the “Choose your dashboard” picker that offers Classic or God Mode whenever the dashboard opens.',
+        'Fixes to custom role hierarchies and organisation creation, migrations 021 to 025.',
+        'Deployment setup and the desktop app icon.',
       ]}/>
       <div className="case-gap"/>
       <Timeline label="Build timeline" items={[
         { date: '11 Aug', title: 'First commit', body: 'Auth, notes and workspaces on Next.js and Supabase.' },
-        { date: '14 Aug', title: 'OS shell, boards, voice', body: 'The second version merged in: a desktop-style shell, whiteboards and voice calls, plus a team chat redesign.' },
-        { date: '16 Aug', title: 'Godmode', body: 'The dust transition and the switch between the two dashboards.' },
-        { date: '19 Aug', title: 'Security review', body: 'Validated, then the worst holes closed: set-role deleted, founder claims signed, role reorder made safe.' },
-        { date: '27 Aug', title: 'Calls, comments, PWA', body: 'Voice reliability, note comments and export, and an installable web app.' },
-        { date: '29 Aug', title: 'Kanban and agent', body: 'A task board, @mentions, and a voice agent that can control tasks and the calendar.' },
-        { date: '6 Sep', title: 'Races closed', body: 'Double-submit races and API auth gaps fixed.' },
+        { date: '14 Aug', title: 'OS shell merged', body: 'The desktop shell, whiteboards and voice calls came in from a second branch, mounted at /dashboard2 beside the classic dashboard.' },
+        { date: '16 Aug', title: 'God Mode', body: 'The God Mode button, the dust transition and the switch between the two dashboards.' },
+        { date: '27 Aug', title: 'The picker', body: 'Dhruv added the picker that asks for Classic or God Mode each time the dashboard opens. Calls, comments and the installable web app landed the same day.' },
+        { date: '29 Aug', title: 'Kanban and agent', body: 'A task board, @mentions, and a voice agent that controls tasks and the calendar.' },
+        { date: '1 Sep', title: 'Gemini Live', body: 'The agent moved to Gemini with a live conversation mode, and notes got share links.' },
+        { date: '6 Sep', title: 'Races closed', body: 'Double-submit races in the dock flyout and API auth gaps fixed.' },
       ]}/>
     </Chapter>
 
     <Chapter id="next" title="Next" heading="What I would do next" tone="paper">
       <Split>
         <Prose><ul>
-          <li>Replace tokens in the deep link with a single-use code the app exchanges itself.</li>
+          <li>Remember the choice. The picker asks on every visit and stores nothing, so a God Mode person answers the same question every morning.</li>
+          <li>Measure it. Count how many people pick God Mode, which layouts get asked for, and how often people drop back to Classic.</li>
+          <li>Let a team save its own layouts next to the five built in ones.</li>
+          <li>Replace tokens in the desktop deep link with a single-use code the app exchanges itself.</li>
           <li>Build invitations that are email-scoped and rate limited, and stop trusting a six-character code.</li>
-          <li>Add the last-founder guard before a remove-member endpoint exists, not after.</li>
-          <li>Write down how whiteboards and chat resolve concurrent edits. I cannot point to a strategy in the schema today.</li>
         </ul></Prose>
-        <Statement>Move the rule down until no screen can forget it.</Statement>
+        <Statement>Keep the page for people who think in pages. Give everyone else the desk.</Statement>
       </Split>
     </Chapter>
   </CasePage>;

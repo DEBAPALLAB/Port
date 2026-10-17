@@ -1,0 +1,45 @@
+/* The pill colour lives on ::before so the cameo can hide between it and the page. */
+.site-header nav .nav-talk { position:relative; isolation:isolate; display:inline-flex; align-items:center; gap:9px; min-height:40px; padding:5px 14px 5px 5px; border-radius:999px; background:transparent; color:#fff; font-weight:600; white-space:nowrap; transition:transform .35s var(--ease); }
+.site-header nav .nav-talk::before { content:''; position:absolute; inset:0; z-index:0; border-radius:inherit; background:#303a31; transition:background .25s ease; }
+.site-header nav .nav-talk > :not(.nav-peek) { position:relative; z-index:1; }
+.site-header nav .nav-talk:hover,.site-header nav .nav-talk:focus-visible { color:#fff; }
+.site-header nav .nav-talk:hover::before,.site-header nav .nav-talk:focus-visible::before { background:#b93c24; }
+.site-header nav .nav-talk:active { transform:translateY(1px) scale(.98); }
+.site-header nav .nav-talk:focus-visible { outline:2px solid #b93c24; outline-offset:3px; }
+.nav-talk-more,.nav-talk-label { padding:0 !important; }
+
+/* The face lives in a little porthole; on hover he leaves it to go and peek. */
+.nav-talk-slot { width:30px; height:30px; flex-shrink:0; overflow:hidden; border-radius:50%; background:#1f2720; box-shadow:inset 0 2px 3px #0008; padding:0 !important; }
+.nav-talk-face { display:block; width:30px; height:30px; transition:transform .35s var(--ease),opacity .25s ease; will-change:transform; }
+.nav-talk-lid { transform-box:fill-box; transform-origin:50% 0; transform:scaleY(0); animation:nav-talk-blink 4.6s infinite; }
+@keyframes nav-talk-blink { 0%,93%,100% { transform:scaleY(0); } 95.5% { transform:scaleY(1); } }
+
+/* Three bars: quiet at rest, chattering while hovered. */
+.nav-talk-wave { display:inline-flex; align-items:center; gap:2px; height:12px; padding:0 !important; }
+.nav-talk-wave i { display:block; width:2px; height:4px; border-radius:2px; background:currentColor; opacity:.65; }
+
+/* The cameo: hidden behind the pill, he leans out around its left edge. */
+.nav-peek { position:absolute; z-index:-1; right:calc(100% - 26px); top:-15px; width:52px; pointer-events:none; padding:0 !important; }
+.nav-peek-hang { display:block; padding:0 !important; opacity:0; transform-origin:85% 85%; transform:translateX(62%) rotate(6deg); transition:opacity .08s linear,transform 0s linear .08s; will-change:transform,opacity; }
+.nav-peek-head { display:block; width:52px; height:auto; }
+.nav-peek-bubble { position:absolute !important; z-index:3 !important; top:calc(100% + 14px); left:-58px; padding:9px 13px !important; background:#fff; color:#1e1a18; border:2px solid #17110f; border-radius:16px; box-shadow:3px 3px 0 #17110f; font-size:13px; font-weight:650; letter-spacing:-.01em; white-space:nowrap; pointer-events:none; opacity:0; transform:scale(.6) translateY(-6px); transform-origin:20% 0; transition:opacity .1s linear,transform 0s linear .1s; }
+.nav-peek-bubble small { font-size:11px; font-weight:600; color:#8a8279; }
+.nav-peek-bubble::after { content:''; position:absolute; left:30px; top:-8px; width:12px; height:12px; background:#fff; border:2px solid #17110f; border-right:0; border-bottom:0; transform:rotate(45deg); border-radius:3px 0 0 0; }
+
+@media (hover:hover) {
+  .nav-talk:hover .nav-talk-face { transform:translateX(-120%) rotate(-30deg); opacity:0; }
+  .nav-talk:hover .nav-peek-hang { opacity:1; transform:translateX(0) rotate(-14deg); transition:transform .5s cubic-bezier(.34,1.4,.55,1) .15s,opacity .12s ease .15s; }
+  .nav-talk:hover .nav-peek-bubble { opacity:1; transform:none; transition:opacity .2s ease .55s,transform .45s cubic-bezier(.34,1.7,.5,1) .55s; }
+  .nav-talk:hover .nav-talk-wave i { animation:nav-talk-chatter .5s ease-in-out infinite alternate; }
+  .nav-talk:hover .nav-talk-wave i:nth-child(2) { animation-delay:-.2s; }
+  .nav-talk:hover .nav-talk-wave i:nth-child(3) { animation-delay:-.35s; }
+}
+.nav-talk:focus-visible .nav-peek-hang { opacity:1; transform:translateX(0) rotate(-14deg); }
+.nav-talk:focus-visible .nav-peek-bubble { opacity:1; transform:none; }
+@keyframes nav-talk-chatter { from { height:3px; } to { height:12px; } }
+
+@media (max-width:520px) { .nav-talk-more,.nav-talk-wave { display:none !important; } .site-header nav .nav-talk { padding-right:13px; gap:7px; } }
+@media (prefers-reduced-motion:reduce) {
+  .nav-talk *,.site-header nav .nav-talk,.site-header nav .nav-talk::before { animation:none !important; transition:none !important; }
+}
+

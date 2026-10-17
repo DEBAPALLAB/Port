@@ -9,7 +9,6 @@ const sites = {
   comparefi: 'https://comparefi.in',
   gdc: 'https://gdcdibrugarh.in',
   notaprompt: 'https://notaprompt.in',
-  lucide: 'https://lucide.in',
   poker: 'https://pokergods.vercel.app',
 };
 const only = process.argv.slice(2);

@@ -32,7 +32,7 @@ try {
       const report = await page.eval(() => {
         const lines = node => { const style = getComputedStyle(node); const lh = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.1; return Math.round(node.getBoundingClientRect().height / lh); };
         return {
-          stages: [...document.querySelectorAll('.stage3d')].map(node => node.dataset.status),
+          stages: [...document.querySelectorAll('.stage3d, [data-stage]')].map(node => node.dataset.status || node.dataset.stage), // [data-stage]: a 2D stage that reports its own status
           overflow: document.documentElement.scrollWidth > innerWidth + 1,
           longHeadlines: [...document.querySelectorAll('h1, h2')].filter(node => lines(node) > 2).map(node => `${node.tagName} ${lines(node)} lines: ${node.textContent.slice(0, 60)}`),
           images: [...document.images].filter(img => img.complete && !img.naturalWidth).map(img => `broken: ${img.src}`),

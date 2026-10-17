@@ -2,7 +2,11 @@
 export function buildThread({ width, start, stops, end }) {
   const narrow = width < 1000;
   const gutter = Math.max(7, Math.min(54, width * (narrow ? .024 : .035)));
-  const points = [start, ...stops.map(y => ({ x: gutter, y })), { x: gutter, y: end }];
+  const points = [start];
+  // A missing or temporarily collapsed anchor must never send the path backwards.
+  for (const y of [...stops, end]) {
+    if (Number.isFinite(y) && y > points.at(-1).y) points.push({ x: gutter, y });
+  }
   const samples = [{ ...start, length: 0 }];
   let d = `M${start.x},${start.y}`, length = 0;
   for (let i = 1; i < points.length; i++) {

@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useReducer, useRef, useState } from 'react';
+﻿import React, { useCallback, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
@@ -6,6 +6,8 @@ import DominoHero from './DominoHero.jsx';
 import WorkSection from './WorkSection.jsx';
 import RangeSection from './RangeSection.jsx';
 import ContactSection from './ContactSection.jsx';
+import NavTalk from './avatar/NavTalk.jsx';
+import BookIcon from './BookIcon.jsx';
 import CaseShelf from './CaseShelf.jsx';
 import JourneyThread from './JourneyThread.jsx';
 import useReducedMotion from './useReducedMotion.js';
@@ -77,6 +79,12 @@ export default function App() {
     requestAnimationFrame(() => document.getElementById('start-journey')?.focus({ preventScroll: true }));
   }, []);
 
+  // The nav CTA goes straight to the cartoon, which looks up and greets the visitor on arrival.
+  function talk(event) {
+    navigate(event, 'connect');
+    setTimeout(() => window.dispatchEvent(new window.CustomEvent('avatar:summon')), reducedMotion ? 50 : 900);
+  }
+
   function navigate(event, destination) {
     event.preventDefault();
     entryTimeline.current?.kill();
@@ -94,7 +102,7 @@ export default function App() {
 
   return <div className={`site-root ${unlocked ? 'journey-open' : 'journey-locked'}`} data-journey-phase={journey.phase} data-journey-mode={journey.mode || 'none'} ref={rootRef}>
     <a className="skip-link" href="#work" onClick={event => navigate(event, 'work')}>Skip animation and read the work</a>
-    <header className="site-header"><a className="identity" href="#top" aria-label="Debapallab Das, back to top"><svg className="identity-mark" viewBox="0 0 26 34" aria-hidden="true"><rect x="3" y="1" width="20" height="32" rx="4" fill="#ed5939" transform="rotate(-9 13 17)"/><path d="M8 17h10" stroke="#fff" strokeWidth="1"/><circle cx="13" cy="9" r="2" fill="#fff"/><circle cx="10" cy="23" r="1.8" fill="#fff"/><circle cx="16" cy="27" r="1.8" fill="#fff"/></svg><span>Debapallab Das<span className="identity-sub">Product + engineering</span></span></a><nav aria-label="Main navigation"><a href="#work" onClick={event => navigate(event, 'work')}>Selected work</a><a href="#cases" onClick={event => navigate(event, 'cases')}>Case studies</a><a href="/about/">About</a><a className="studio-nav" href="https://lucide.in" target="_blank" rel="noreferrer">My studio <span aria-hidden="true">↗</span></a><a href="#connect" onClick={event => navigate(event, 'connect')} className="nav-contact">Contact <span aria-hidden="true">↗</span></a></nav></header>
+    <header className="site-header"><a className="identity" href="#top" aria-label="Debapallab Das, back to top"><svg className="identity-mark" viewBox="0 0 26 34" aria-hidden="true"><rect x="3" y="1" width="20" height="32" rx="4" fill="#ed5939" transform="rotate(-9 13 17)"/><path d="M8 17h10" stroke="#fff" strokeWidth="1"/><circle cx="13" cy="9" r="2" fill="#fff"/><circle cx="10" cy="23" r="1.8" fill="#fff"/><circle cx="16" cy="27" r="1.8" fill="#fff"/></svg><span>Debapallab Das<span className="identity-sub">Product + engineering</span></span></a><nav aria-label="Main navigation"><a href="#work" onClick={event => navigate(event, 'work')}>Selected work</a><a href="#cases" onClick={event => navigate(event, 'cases')}>Case studies</a><a className="nav-story" href="/about/"><BookIcon/><span className="nav-story-label">My story</span></a><a className="studio-nav" href="https://lucide.in" target="_blank" rel="noreferrer">My studio <span aria-hidden="true">↗</span></a><NavTalk onClick={talk}/></nav></header>
     <main id="top"><DominoHero ref={heroRef} onActivate={activate} onReplay={replay}/><div key={revision} className="journey-shell" hidden={!unlocked} inert={!unlocked} aria-hidden={!unlocked} data-testid="journey-content"><WorkSection enabled={unlocked} animate={animate} reducedMotion={reducedMotion} intent={intent} onIntent={setIntent}/><RangeSection animate={animate} reducedMotion={reducedMotion} intent={intent} onIntent={setIntent}/><CaseShelf/><ContactSection animate={animate} reducedMotion={reducedMotion} intent={intent} onIntent={setIntent} onReplay={replay}/></div></main>
     <JourneyThread enabled={unlocked && journey.mode === 'cinematic'} reducedMotion={reducedMotion} rootRef={rootRef}/>
   </div>;

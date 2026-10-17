@@ -14,8 +14,13 @@
     "check:personal": "node scripts/cabinet-about-check.mjs",
     "check:files": "node scripts/project-files-check.mjs",
     "check:drawer-cards": "node scripts/drawer-cards-check.mjs",
+    "check:drawer-physics": "node scripts/drawer-physics-check.mjs",
+    "check:drawer-close": "node scripts/drawer-close-sync-check.mjs",
+    "check:voice": "node scripts/voice-experience-check.mjs",
+    "check:voice:live": "node scripts/voice-live-check.mjs",
     "check:cabinet-stability": "node scripts/cabinet-stability-check.mjs",
-    "check:home-motion": "node scripts/home-motion-check.mjs"
+    "check:home-motion": "node scripts/home-motion-check.mjs",
+    "check:thread": "node scripts/thread-check.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.2.8",

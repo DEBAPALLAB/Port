@@ -1,6 +1,9 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import { buildThread, threadPointAtY } from './threadGeometry.js';
 
+// Anchor to section-owned layout boxes, independent of the contents of each feature.
+const stationSelectors = ['#work .work-intro', '#workflow > .workflow-heading', '#connect .personal-invitation'];
+
 export default function JourneyThread({ enabled, reducedMotion, rootRef }) {
   const svgRef = useRef(null), pathRef = useRef(null), tipRef = useRef(null), stationsRef = useRef(null);
   useLayoutEffect(() => {
@@ -10,6 +13,7 @@ export default function JourneyThread({ enabled, reducedMotion, rootRef }) {
     const stations = [];
     // Offset coordinates ignore GSAP entrance transforms, keeping stations stable.
     function layoutTop(node) {
+      if (!node || !node.getClientRects().length) return null;
       let top = 0;
       while (node && node !== root) { top += node.offsetTop; node = node.offsetParent; }
       return top;
@@ -32,7 +36,10 @@ export default function JourneyThread({ enabled, reducedMotion, rootRef }) {
       origin = rect.top + window.scrollY;
       const hero = root.querySelector('.hero'), action = root.querySelector('.hero-action');
       const heroRect = hero.getBoundingClientRect(), actionRect = action.getBoundingClientRect();
-      const stops = ['.work-intro', '.workflow-heading', '.about-heading'].map(selector => layoutTop(root.querySelector(selector)) - 32);
+      const stops = stationSelectors.map(selector => {
+        const top = layoutTop(root.querySelector(selector));
+        return top === null ? null : top - 32;
+      });
       const contact = root.querySelector('.contact-row');
       const start = { x: actionRect.left - rect.left + actionRect.width / 2, y: heroRect.bottom - rect.top - 10 };
       geometry = buildThread({ width: rect.width, start, stops, end: layoutTop(contact) + contact.offsetHeight + 12 });
@@ -42,6 +49,9 @@ export default function JourneyThread({ enabled, reducedMotion, rootRef }) {
       pathRef.current.style.strokeDasharray = String(geometry.length);
       stations.length = 0;
       [...stationsRef.current.children].forEach((node, i) => {
+        const visible = Number.isFinite(stops[i]) && stops[i] > start.y;
+        node.style.display = visible ? '' : 'none';
+        if (!visible) return;
         node.setAttribute('transform', `translate(${geometry.gutter} ${stops[i]})`);
         stations.push({ y: stops[i], node });
       });
@@ -51,7 +61,7 @@ export default function JourneyThread({ enabled, reducedMotion, rootRef }) {
     function scheduleMeasure() { if (!layoutFrame) layoutFrame = requestAnimationFrame(measure); }
     const observer = new ResizeObserver(scheduleMeasure);
     observer.observe(root);
-    root.querySelectorAll('.work-intro, .workflow-heading, .about-heading, .contact-row').forEach(node => observer.observe(node));
+    root.querySelectorAll([...stationSelectors, '.contact-row'].join(',')).forEach(node => observer.observe(node));
     window.addEventListener('scroll', schedulePaint, { passive: true });
     window.addEventListener('resize', scheduleMeasure, { passive: true });
     document.addEventListener('visibilitychange', schedulePaint);

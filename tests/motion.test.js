@@ -47,3 +47,13 @@ test('the continuous thread fits mobile and desktop gutters and follows reading 
     assert.equal(threadPointAtY(g.samples,Infinity).length,g.length);
   }
 });
+
+test('missing, collapsed and out-of-order anchors cannot fold the thread back through earlier sections',()=>{
+  const g=buildThread({width:1440,start:{x:720,y:800},stops:[960,2300,null,-32,2300,NaN,3900],end:4500});
+  const expected=buildThread({width:1440,start:{x:720,y:800},stops:[960,2300,3900],end:4500});
+  assert.equal(g.d,expected.d);
+  assert.equal(threadPointAtY(g.samples,3000).y,3000);
+  const collapsed=buildThread({width:390,start:{x:195,y:800},stops:[null,0],end:0});
+  assert.equal(collapsed.samples.length,1);
+  assert.equal(threadPointAtY(collapsed.samples,Infinity).length,0);
+});

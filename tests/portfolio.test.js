@@ -136,6 +136,45 @@ test('the Superforms screens expand colour-coded decisions on hover and switch b
   assert.equal(document.querySelector('.decision-card'),null);
 });
 
+test('hover pulls only the drawer, click opens its panel, and Escape closes it', async () => {
+  const view = render(React.createElement(App));
+  fireEvent.click(view.getByRole('link', { name: 'Selected work' }));
+  const drawers = document.querySelectorAll('.cabinet-drawer');
+  const front = drawers[0].querySelector('.drawer-front');
+  fireEvent.pointerEnter(drawers[0], { pointerType:'mouse' });
+  act(() => front.focus());
+  assert.equal(drawers[0].dataset.open, 'false');
+  await waitFor(() => assert.equal(drawers[0].dataset.open, 'true'));
+  assert.equal(drawers[0].dataset.pinned, 'false');
+  assert.equal(drawers[0].dataset.notesOpen, 'false');
+  assert.equal(drawers[0].querySelector('.drawer-inspector').hasAttribute('inert'), true);
+  assert.equal(drawers[0].querySelector('.drawer-paper-window').hasAttribute('inert'), true);
+  fireEvent.click(front);
+  assert.equal(drawers[0].dataset.pinned, 'true');
+  assert.equal(front.getAttribute('aria-expanded'), 'true');
+  const choices = drawers[0].querySelectorAll('.drawer-card-selector button');
+  assert.equal(choices[0].getAttribute('aria-pressed'), 'true');
+  fireEvent.pointerEnter(choices[1], { pointerType:'mouse' });
+  act(() => choices[1].focus());
+  assert.equal(choices[0].getAttribute('aria-pressed'), 'true');
+  fireEvent.click(choices[1]);
+  assert.equal(choices[1].getAttribute('aria-pressed'), 'true');
+  fireEvent.keyDown(choices[1], { key:'Escape' });
+  assert.equal(drawers[0].dataset.open, 'false');
+  assert.equal(document.activeElement, front);
+  assert.equal(drawers[0].querySelector('.drawer-files').hasAttribute('inert'), true);
+  fireEvent.click(front);
+  assert.equal(choices[1].getAttribute('aria-pressed'), 'true');
+  fireEvent.click(drawers[1].querySelector('.drawer-front'));
+  assert.equal(drawers[0].dataset.open, 'false');
+  assert.equal(drawers[1].dataset.open, 'true');
+  fireEvent.click(drawers[1].querySelector('.drawer-close'));
+  assert.equal(drawers[1].dataset.open, 'false');
+  fireEvent.click(front);
+  fireEvent.click(front);
+  assert.equal(drawers[0].dataset.open, 'false');
+});
+
 test('every drawer opens its complete case study and old summary tabs are gone', () => {
   const view = render(React.createElement(App));
   fireEvent.click(view.getByRole('link', { name: 'Selected work' }));
@@ -168,7 +207,7 @@ test('navigation interrupts the handoff without allowing its old completion to s
   reduced = false;
   const view = render(React.createElement(App));
   fireEvent.click(view.getByRole('button', { name: 'Push the first domino to enter the portfolio' }));
-  fireEvent.click(view.getByRole('link', { name: /Contact/, exact: false }));
+  fireEvent.click(view.getByRole('link', { name: /Talk to me/, exact: false }));
   assert.equal(document.querySelector('.site-root').dataset.journeyPhase, 'active');
   assert.equal(document.activeElement.id, 'contact-title');
   await act(async () => { await new Promise(resolve => setTimeout(resolve, 4200)); });
@@ -202,9 +241,9 @@ test('motion-enabled first activation automatically completes its handoff withou
   reduced = true;
 });
 
-test('direct Contact navigation opens the right chapter and transfers keyboard focus there', () => {
+test('the Talk to me navigation opens the right chapter and transfers keyboard focus there', () => {
   const view = render(React.createElement(App));
-  fireEvent.click(view.getByRole('link', { name: /Contact/, exact: false }));
+  fireEvent.click(view.getByRole('link', { name: /Talk to me/, exact: false }));
   assert.equal(document.querySelector('.site-root').dataset.journeyMode, 'direct');
   assert.equal(document.activeElement.id, 'contact-title');
   cleanup();

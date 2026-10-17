@@ -1,0 +1,114 @@
+/* Meet the person: the same grammar as the hero. One line, one title, one object, one pill. */
+.personal-invitation.voice-layout { display:block; padding-bottom:0; }
+.personal-invitation-section:has(.voice-experience) { padding-top:0; }
+.voice-experience { --ink-line:#17110f; position:relative; display:grid; grid-template-rows:auto minmax(0,1fr) auto; min-height:calc(100dvh - 80px); padding-top:clamp(32px,6vh,72px); color:#30312e; text-align:center; }
+.voice-experience .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
+.voice-experience :is(button,a,input,summary):focus-visible { outline:2px solid #b93c24; outline-offset:3px; }
+.voice-experience button:disabled { opacity:.4; cursor:default; }
+
+/* The title, set exactly like the hero's */
+.voice-heading { position:relative; z-index:3; }
+.voice-experience .voice-heading .hero-intro { max-width:none; margin:0 0 20px; font-size:12px; font-weight:500; line-height:1.4; color:#73736b; }
+.voice-experience .voice-heading h2 { margin:0; font-size:clamp(42px,5.7vw,82px); font-weight:520; letter-spacing:-.066em; line-height:1.11; }
+.voice-heading h2 span { color:var(--accent); }
+
+/* The object: the cartoon, fading into the page like the dominoes' floor */
+.voice-stage { position:relative; justify-self:center; align-self:end; width:min(92%,clamp(270px,(100dvh - 505px) * 1.14,560px)); margin-top:clamp(8px,2vh,24px); padding:0; }
+.voice-stage .talking-avatar svg { -webkit-mask-image:linear-gradient(#000 82%,transparent); mask-image:linear-gradient(#000 82%,transparent); }
+.voice-bubble { position:absolute; z-index:2; right:calc(100% - 22%); top:12%; width:min(300px,30vw); padding:15px 18px; text-align:left; background:#fff; border:2.5px solid var(--ink-line); border-radius:22px; box-shadow:5px 5px 0 var(--ink-line); color:#1e1a18; transform-origin:100% 100%; animation:voice-pop .45s var(--ease) both; }
+.voice-bubble::after { content:''; position:absolute; right:-16px; bottom:22px; width:22px; height:18px; background:#fff; border:2.5px solid var(--ink-line); border-left:0; border-top:0; transform:skewY(-28deg) rotate(-14deg); border-bottom-right-radius:4px; }
+.voice-bubble > p { margin:0; font-size:16px; line-height:1.45; overflow-wrap:anywhere; text-wrap:pretty; }
+.voice-bubble .voice-question { margin:0 0 8px; font-size:12px; color:#6b6560; }
+.voice-interrupted { display:block; margin-top:6px; font-size:12px; color:#6b6560; }
+
+/* The page he suggests, pinned beside him like a file pulled from the cabinet */
+.voice-recommendation { position:absolute; z-index:2; left:calc(100% - 18%); top:30%; display:flex; flex-direction:column; gap:6px; width:min(230px,24vw); padding:16px 18px 15px; text-align:left; background:#fff; border:1px solid #e3ded5; border-top:3px solid var(--accent); border-radius:6px; box-shadow:0 3px 1px #a2927c0a,0 14px 34px #a2927c1f; transform:rotate(2.5deg); animation:voice-pin .6s var(--ease) both; transition:transform .35s var(--ease),box-shadow .35s ease; }
+.voice-recommendation:hover { transform:rotate(0) translateY(-4px); box-shadow:0 6px 3px #a2927c0d,0 20px 40px #a2927c29; }
+.voice-recommendation small { font-size:11px; font-weight:600; color:#a13c28; }
+.voice-recommendation strong { font-size:20px; font-weight:560; letter-spacing:-.03em; line-height:1.15; }
+.voice-recommendation > span { font-size:13px; color:#5d5951; }
+@keyframes voice-pop { from { opacity:0; transform:scale(.9) translateY(6px); } }
+@keyframes voice-pin { from { opacity:0; transform:rotate(9deg) translate(20px,-14px); } }
+
+/* The bottom bar: note on the left, one pill in the middle, a quiet toggle on the right */
+.voice-dock { position:relative; z-index:3; margin-top:-44px; display:flex; flex-direction:column; align-items:center; gap:12px; padding:12px 0 22px; background:linear-gradient(transparent,#fff 26px); }
+.voice-bar { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:24px; width:100%; }
+.voice-corner { min-width:0; font-size:12px; color:#73736b; }
+.voice-corner-start { justify-self:start; text-align:left; }
+.voice-corner-end { justify-self:end; text-align:right; }
+.voice-privacy { margin:0; max-width:28ch; line-height:1.45; }
+.voice-listen { display:inline-flex; align-items:center; gap:8px; min-height:44px; font-size:12px; color:#5d5951; transition:color .2s ease; }
+.voice-listen:hover { color:#b93c24; }
+.voice-state { display:inline-flex; align-items:center; gap:8px; margin:0; }
+.voice-status-dot { width:7px; height:7px; flex-shrink:0; border-radius:50%; background:#c9c4ba; }
+.voice-status-dot[data-live='true'] { background:var(--accent); animation:voice-pulse 1.6s ease-out infinite; }
+@keyframes voice-pulse { 0% { box-shadow:0 0 0 0 #ed593966; } 100% { box-shadow:0 0 0 9px #ed593900; } }
+
+.voice-experience .voice-start { gap:11px; padding:12px 22px 12px 13px; font-size:13px; background:#30312e; border-color:#30312e; color:#fff; }
+.voice-experience .voice-start:hover { background:#b93c24; border-color:#b93c24; }
+.voice-experience .voice-start > span:last-child { color:#ffffff88; }
+.voice-start > span:last-child { font-size:16px; line-height:1; color:#a8a196; transition:transform .3s var(--ease); }
+.voice-start:hover > span:last-child { transform:translateX(3px); }
+.voice-start:hover .voice-mini-face { transform:rotate(-10deg); }
+.voice-mini-face { transition:transform .4s var(--ease); }
+
+.voice-ctas { display:flex; align-items:center; justify-content:center; gap:10px; }
+.voice-experience .voice-story { gap:10px; width:auto; min-height:49px; margin:0; padding:12px 20px 12px 16px; background:#fff; color:#45443e; font-size:13px; font-weight:600; text-decoration:none; }
+.voice-experience .voice-story:hover { background:#fff; color:#b93c24; }
+.voice-experience .voice-story span,.voice-experience .voice-story:hover span { transition:none; transform:none; }
+
+/* Live: the pill becomes the conversation bar */
+.voice-transport { gap:4px; padding:5px; min-width:min(460px,100%); font-size:13px; transform:none !important; }
+.voice-transport > button { display:grid; place-items:center; min-width:40px; height:40px; padding:0 10px; border-radius:5px; color:#45443e; transition:background .2s ease,color .2s ease; }
+.voice-transport > button:hover { background:#f3f1ec; }
+.voice-transport .voice-mic-control[aria-pressed='true'] { background:#30312e; color:#fff; }
+.voice-transport .voice-end { color:#a13c28; font-weight:600; }
+.voice-transport .voice-end:hover { background:#fbece6; }
+.voice-text-form { flex:1; display:flex; align-items:center; min-width:0; }
+.voice-text-form input { flex:1; min-width:0; height:40px; padding:0 8px; border:0; background:transparent; color:inherit; font:inherit; font-size:13px; font-weight:500; }
+.voice-text-form input:focus { outline:none; }
+.voice-text-form button { width:34px; height:34px; border-radius:5px; color:#fff; background:var(--accent); font-size:14px; }
+.voice-connecting { flex:1; padding:0 10px; color:#73736b; text-align:left; }
+
+.voice-questions { position:absolute; left:0; right:0; bottom:calc(100% - 6px); display:flex; flex-wrap:wrap; justify-content:center; gap:8px; animation:voice-pop .4s var(--ease) both; }
+.voice-questions button { min-height:34px; padding:6px 13px; border:1px solid #e9e7e2; border-radius:999px; background:#fff; font-size:12px; color:#5d5951; transition:border-color .2s ease,color .2s ease; }
+.voice-questions button:hover { border-color:#d3b5a5; color:#b93c24; }
+.voice-notice { margin:0; font-size:13px; color:#a13c28; }
+
+.voice-transcript { position:relative; }
+.voice-transcript summary { cursor:pointer; min-height:44px; display:flex; align-items:center; list-style:none; font-weight:600; color:#30312e; }
+.voice-transcript summary::-webkit-details-marker { display:none; }
+.voice-transcript-log { position:absolute; left:0; bottom:calc(100% + 8px); width:min(340px,80vw); max-height:300px; overflow:auto; overscroll-behavior:contain; padding:16px; background:#fff; border:1px solid #e9e7e2; border-radius:8px; box-shadow:0 14px 34px #a2927c1f; text-align:left; }
+.voice-transcript-log p { margin:0 0 14px; font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
+.voice-transcript-log strong,.voice-transcript-log span,.voice-transcript-log small { display:block; }
+.voice-transcript-log strong { font-size:12px; margin-bottom:2px; }
+.voice-transcript-log small { color:#73736b; }
+
+@media(max-width:1000px) {
+  .voice-stage { width:min(440px,56%); }
+  .voice-bubble { right:calc(100% - 24%); width:min(220px,28vw); padding:13px 15px; }
+  .voice-bubble > p { font-size:14px; }
+  .voice-recommendation { left:calc(100% - 20%); width:min(190px,24vw); }
+}
+@media(max-width:700px) {
+  .voice-experience { min-height:0; padding-top:56px; }
+  .voice-experience .voice-heading h2 { font-size:clamp(36px,10vw,46px); letter-spacing:-.06em; }
+  .voice-stage { width:100%; margin-top:18px; display:flex; flex-direction:column; align-items:center; }
+  .voice-bubble { position:relative; right:auto; top:auto; width:auto; max-width:calc(100% - 24px); margin:0 0 -4px; order:0; }
+  .voice-bubble::after { right:auto; left:50%; bottom:-15px; width:18px; height:18px; transform:translateX(-50%) rotate(45deg); border-radius:0 0 4px 0; }
+  .voice-stage .talking-avatar { order:1; width:100%; }
+  .voice-recommendation { position:relative; left:auto; top:auto; order:2; width:100%; margin-top:-30px; transform:none; }
+  .voice-dock { margin-top:-24px; }
+  .voice-questions { position:static; }
+  .voice-bar { grid-template-columns:1fr; gap:6px; }
+  .voice-center { order:0; width:100%; }
+  .voice-corner-end { order:1; justify-self:center; }
+  .voice-corner-start { order:2; justify-self:center; margin-top:10px; text-align:center; }
+  .voice-privacy { align-items:center; }
+  .voice-transcript-log { position:static; width:min(340px,calc(100vw - 48px)); margin-top:6px; }
+  .voice-start,.voice-transport { width:100%; min-width:0; }
+  .voice-ctas { flex-direction:column; align-items:stretch; width:100%; gap:8px; }
+  .voice-experience .voice-story { justify-content:center; }
+}
+@media(prefers-reduced-motion:reduce) { .voice-experience *,.voice-experience *::after { transition:none!important; animation:none!important; } }
+

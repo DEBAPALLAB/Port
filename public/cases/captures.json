@@ -1,13 +1,6 @@
 {
   "luman": [
-    "public/cases/luman/desktop-0.jpg",
-    "public/cases/luman/desktop-1.jpg",
-    "public/cases/luman/desktop-2.jpg",
-    "public/cases/luman/desktop-3.jpg",
-    "public/cases/luman/mobile-0.jpg",
-    "public/cases/luman/mobile-1.jpg",
-    "public/cases/luman/mobile-2.jpg",
-    "public/cases/luman/mobile-3.jpg"
+    "public/cases/luman/desktop-0.jpg"
   ],
   "superforms": [
     "public/cases/superforms/desktop-0.jpg",
@@ -58,16 +51,6 @@
     "public/cases/notaprompt/mobile-1.jpg",
     "public/cases/notaprompt/mobile-2.jpg",
     "public/cases/notaprompt/mobile-3.jpg"
-  ],
-  "lucide": [
-    "public/cases/lucide/desktop-0.jpg",
-    "public/cases/lucide/desktop-1.jpg",
-    "public/cases/lucide/desktop-2.jpg",
-    "public/cases/lucide/desktop-3.jpg",
-    "public/cases/lucide/mobile-0.jpg",
-    "public/cases/lucide/mobile-1.jpg",
-    "public/cases/lucide/mobile-2.jpg",
-    "public/cases/lucide/mobile-3.jpg"
   ],
   "poker": [
     "public/cases/poker/desktop-0.jpg",
