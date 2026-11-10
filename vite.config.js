@@ -16,7 +16,7 @@ function voiceSessionApi() {
 
 // Multi-page build: the journey at / and one page per case study at /work/<slug>/.
 const cases = existsSync('work') ? readdirSync('work').filter(slug => existsSync(`work/${slug}/index.html`)) : [];
-const input = { main: resolve('index.html'), about: resolve('about/index.html'), ...Object.fromEntries(cases.map(slug => [`work-${slug}`, resolve(`work/${slug}/index.html`)])) };
+const input = { main: resolve('index.html'), about: resolve('about/index.html'), ...(existsSync('work/index.html') ? { work: resolve('work/index.html') } : {}), ...Object.fromEntries(cases.map(slug => [`work-${slug}`, resolve(`work/${slug}/index.html`)])) };
 
 export default defineConfig({
   plugins: [react(),voiceSessionApi()],

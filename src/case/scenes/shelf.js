@@ -1,7 +1,7 @@
 import { caseIndex } from '../caseIndex.js';
 import { projects } from '../../projects.js';
 
-// Nine case studies as nine standing dominoes. Scroll sets them up; pushing one topples it into its story.
+// Every published case study is a standing domino in its own colour. Scroll sets them up; pushing one topples it into its story.
 export const options = { frame: 4.6, height: 2.2, target: [0, .55, 0], yaw: [-.35, .35], startYaw: 0, startPitch: .06, pitch: [-.05, .2], floor: -.02, shadow: .16, ambient:false, maxPixelRatio:1.5 };
 
 const W = .92, H = 1.84, D = .26;
@@ -21,29 +21,33 @@ export default function setup(api) {
   const { THREE, root, roundedBox, materials, canvasTexture, interactive, palette, state, emit, kick, reducedMotion } = api;
   const pieces = [];
   const geometry = roundedBox(W, H, D, .07, 5);
-  const body = materials.ceramic(palette.ceramic), bodyHot = materials.accent();
-  const count = 9;
+  const body = materials.ceramic(palette.ceramic);
+  let count = 0;
+  const lightColour = hex => { const n = parseInt(hex.slice(1), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255; return (.2126 * r + .7152 * g + .0722 * b) / 255 > .62; };
 
   function face(item, hot) {
     return canvasTexture(512, 1024, (ctx, w, h) => {
-      ctx.fillStyle = hot ? '#ed5939' : '#fbfaf6'; ctx.fillRect(0, 0, w, h);
-      const ink = hot ? '#ffffff' : '#30312e';
-      ctx.fillStyle = hot ? '#ffffff' : '#ed5939';
+      const color = item.color || '#ed5939', ink = item.ink || color, light = lightColour(color);
+      ctx.fillStyle = hot ? color : '#fbfaf6'; ctx.fillRect(0, 0, w, h);
+      if (!hot) { ctx.fillStyle = color; ctx.fillRect(0, 0, 30, h); }
+      const text = hot ? (light ? '#30312e' : '#ffffff') : '#30312e';
+      ctx.fillStyle = hot ? text : color;
       ctx.beginPath(); ctx.arc(w - 70, 72, 20, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = ink;
+      ctx.fillStyle = text;
       ctx.font = '600 66px "Manrope Variable", sans-serif';
-      wrap(ctx, item.name, 420).forEach((line, i) => ctx.fillText(line, 46, 150 + i * 74));
+      wrap(ctx, item.name, 410).forEach((line, i) => ctx.fillText(line, 66, 150 + i * 74));
       ctx.font = '500 34px "Manrope Variable", sans-serif';
-      ctx.globalAlpha = .78; ctx.fillText(item.kind, 46, 400); ctx.globalAlpha = 1;
-      ctx.fillStyle = hot ? '#ffffff' : '#d9d4ca'; ctx.fillRect(46, 508, w - 92, 6);
-      ctx.fillStyle = ink; ctx.font = '500 38px "Manrope Variable", sans-serif';
-      wrap(ctx, item.line, 420).forEach((line, i) => ctx.fillText(line, 46, 610 + i * 50));
-      ctx.font = '650 34px "Manrope Variable", sans-serif';
-      ctx.fillText('Read the case study →', 46, 940);
+      ctx.globalAlpha = .78; ctx.fillText(item.kind, 66, 400); ctx.globalAlpha = 1;
+      ctx.fillStyle = hot ? text : color; ctx.fillRect(66, 504, w - 112, 12);
+      ctx.fillStyle = text; ctx.font = '500 38px "Manrope Variable", sans-serif';
+      wrap(ctx, item.line, 400).forEach((line, i) => ctx.fillText(line, 66, 610 + i * 50));
+      ctx.fillStyle = hot ? text : ink; ctx.font = '650 34px "Manrope Variable", sans-serif';
+      ctx.fillText('Read the case study →', 66, 940);
     });
   }
 
   function build(items) {
+    count = items.length;
     items.forEach((item, index) => {
       const pivot = new THREE.Group();
       const cool = new THREE.MeshBasicMaterial({ map: face(item, false) });
@@ -52,7 +56,7 @@ export default function setup(api) {
       mesh.position.set(0, H / 2, D / 2); mesh.castShadow = true;
       mesh.userData = { slug: item.slug, onPick: () => push(index) };
       pivot.add(mesh); root.add(pivot); interactive.push(mesh);
-      pieces.push({ item, pivot, mesh, cool, hot, lift: 0, liftTarget: 0, fall: 0, falling: false, fallVelocity: 0, stand: reducedMotion ? 1 : 0 });
+      pieces.push({ item, pivot, mesh, cool, hot, hotBody: materials.accent(parseInt((item.color || '#ed5939').slice(1), 16)), lift: 0, liftTarget: 0, fall: 0, falling: false, fallVelocity: 0, stand: reducedMotion ? 1 : 0 });
     });
   }
 
@@ -61,7 +65,7 @@ export default function setup(api) {
     if (index === hovered) return;
     if (hovered >= 0 && hovered !== pushed) { const p = pieces[hovered]; p.liftTarget = 0; p.mesh.material = [body, body, body, body, p.cool, body]; }
     hovered = index;
-    if (index >= 0) { const p = pieces[index]; p.liftTarget = 1; p.mesh.material = [bodyHot, bodyHot, bodyHot, bodyHot, p.hot, bodyHot]; }
+    if (index >= 0) { const p = pieces[index]; p.liftTarget = 1; p.mesh.material = [p.hotBody, p.hotBody, p.hotBody, p.hotBody, p.hot, p.hotBody]; }
     emit('hover', index >= 0 ? pieces[index].item.slug : null);
     kick(.8);
   }
@@ -75,9 +79,9 @@ export default function setup(api) {
     openTimer=setTimeout(() => emit('open', p.item.slug), 620);
   }
 
-  // Wide stages hold one arc of nine; narrow stages stack three rows of three, stepping back in depth.
+  // Wide stages hold one arc; narrow stages stack rows of three, stepping back in depth.
   function layout(width, height) {
-    const aspect = width / height, wide = aspect >= 1.55;
+    const aspect = width / height, wide = aspect >= 1.55, rows = Math.ceil(count / 3);
     const tan = Math.tan(THREE.MathUtils.degToRad(api.camera.fov) / 2);
     pieces.forEach((p, index) => {
       if (wide) {
@@ -86,18 +90,18 @@ export default function setup(api) {
         p.pivot.rotation.y = -t * .45;
       } else {
         const row = Math.floor(index / 3), col = index % 3;
-        p.pivot.position.set((col - 1) * 1.22 + (row % 2) * .18, 0, 1.3 - row * 1.75);
+        p.pivot.position.set((col - 1) * 1.22 + (row % 2) * .18, 0, 1.3 - row * 1.6);
         p.pivot.rotation.y = -(col - 1) * .12;
       }
     });
     const halfWidth = wide ? 5.7 : 2.2;
-    const distance = Math.max(halfWidth / (tan * aspect), wide ? 7 : 6.5);
+    const distance = Math.max(halfWidth / (tan * aspect), wide ? 7 : 6.5) + (wide ? 0 : Math.max(0, rows - 3) * 1.1);
     const lift = wide ? .26 : .62;
     api.camera.position.set(0, .7 + distance * lift, distance * (wide ? 1 : .9));
-    api.camera.lookAt(0, wide ? .75 : .5, wide ? 0 : -.4);
+    api.camera.lookAt(0, wide ? .75 : .5, wide ? 0 : -.4 - Math.max(0, rows - 3) * .5);
   }
 
-  build(caseIndex.map(item => ({ ...item, kind: projects.find(project => project.id === item.slug)?.kind || '' })));
+  build(caseIndex.map(item => ({ ...item, kind: item.kind || projects.find(project => project.id === item.slug)?.kind || '' })));
 
   return {
     on(name, payload) {

@@ -44,7 +44,7 @@ try {
       assert.equal(await page.eval(()=>document.querySelectorAll('.personal-chapter').length),4);
       await page.eval(()=>document.querySelectorAll('.personal-story-stage button')[2].click());
       await sleep(1000);
-      assert.equal(await page.eval(()=>document.querySelector('.personal-stage-frame').textContent.includes('A new city.')),true);
+      assert.equal(await page.eval(()=>document.querySelector('.personal-story-stage button[aria-current="step"]').textContent),'Nagpur');
       await page.screenshot({path:`${out}/${width}-about-story.jpg`,quality:90});
       await page.eval(()=>document.querySelectorAll('.personal-competition-book button')[6].click());
       await sleep(550);
@@ -56,7 +56,13 @@ try {
       await sleep(900);
       await page.screenshot({path:`${out}/${width}-about-music.jpg`,quality:90});
       assert.equal(await page.eval(()=>document.documentElement.scrollWidth <= innerWidth),true,'about no page overflow');
-      assert.equal(await page.eval(()=>document.querySelectorAll('.personal-photo img').length),0,'no invented photos');
+      assert.equal(await page.eval(()=>document.querySelectorAll('.personal-photo img').length),3,'the three supplied personal photographs are shown');
+      assert.equal(await page.eval(()=>[...document.images].every(img=>img.complete && img.naturalWidth>0)),true,'all real photographs and the product capture load');
+      for (const [index, text] of ['54/100','Six PRDs','Ethics of AI Companionship','chord deck'].entries()) {
+        await page.eval(i=>document.querySelectorAll('.personal-question-browser button')[i].click(),index);
+        assert.equal(await page.eval(()=>document.querySelectorAll('.personal-answer:not([hidden])').length),1);
+        assert.ok((await page.eval(()=>document.querySelector('.personal-answer:not([hidden])').textContent)).toLowerCase().includes(text.toLowerCase()));
+      }
       assert.equal(page.consoleErrors.length,0, 'no runtime errors');
       console.log(`ok ${width}: drawer selection, escape, filtering, navigation, story chapters, competitions, overflow`);
     } finally { await page.close(); }

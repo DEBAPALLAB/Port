@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './case.css';
+import '../analytics.js';
 
 const host = document.getElementById('root');
 const studies = import.meta.glob('./studies/*.jsx');

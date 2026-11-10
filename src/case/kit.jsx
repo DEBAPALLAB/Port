@@ -29,7 +29,7 @@ function useReveal(rootRef, reducedMotion) {
   }, [rootRef, reducedMotion]);
 }
 
-export function CasePage({ slug, accent, children }) {
+export function CasePage({ slug, accent, ink, children, parent, next: nextProp }) {
   const embedded = new URLSearchParams(window.location.search).get('file') === '1';
   const rootRef = useRef(null), barRef = useRef(null);
   const reducedMotion = useReducedMotion();
@@ -38,7 +38,7 @@ export function CasePage({ slug, accent, children }) {
   useReveal(rootRef, reducedMotion);
   const study = caseIndex.find(item => item.slug === slug);
   const position = caseIndex.findIndex(item => item.slug === slug);
-  const next = caseIndex[(position + 1) % caseIndex.length];
+  const next = nextProp || caseIndex[(position + 1) % caseIndex.length];
 
   useLayoutEffect(() => {
     const list = [...rootRef.current.querySelectorAll('[data-chapter]')].map(node => ({ id: node.id, title: node.dataset.chapter }));
@@ -65,11 +65,11 @@ export function CasePage({ slug, accent, children }) {
     return () => { removeEventListener('scroll', onScroll); removeEventListener('resize', onScroll); cancelAnimationFrame(frame); };
   }, []);
 
-  return <div className="case-root" ref={rootRef} style={accent ? { '--case-accent': accent } : undefined} data-case={slug} data-file-embedded={embedded}>
+  return <div className="case-root" ref={rootRef} style={{ ...(accent || study?.color ? { '--case-accent': accent || study.color } : {}), ...((study?.ink || ink) ? { '--case-ink': study?.ink || ink } : {}) }} data-case={slug} data-file-embedded={embedded}>
     <a className="skip-link" href="#case-main">Skip to the case study</a>
     {!embedded && <header className="case-header">
       <a className="identity" href="/" aria-label="Debapallab Das, home"><DominoMark/><span>Debapallab Das<span className="identity-sub">Product + engineering</span></span></a>
-      <nav aria-label="Case study navigation"><a href="/#work">All work</a><a href="/about/">About me</a><a href={`/work/${next.slug}/`}>Next: {next.name}</a><a className="nav-contact" href={`mailto:dev.lucide@gmail.com?subject=${encodeURIComponent(`About ${study?.name || 'your work'}`)}`}>Say hello <span aria-hidden="true">↗</span></a></nav>
+      <nav aria-label="Case study navigation">{parent && <a href={parent.href}>← {parent.name}</a>}<a href="/#work">All work</a><a href="/work/">Product studies</a><a href="/about/">About me</a><a href={`/work/${next.slug}/`}>Next: {next.name}</a><a className="nav-contact" href={`mailto:dev.lucide@gmail.com?subject=${encodeURIComponent(`About ${study?.name || 'your work'}`)}`}>Say hello <span aria-hidden="true">↗</span></a></nav>
       <div className="case-progress" ref={barRef} aria-hidden="true"/>
     </header>}
     {!embedded && chapters.length > 2 && <nav className="case-rail" aria-label="Chapters">
@@ -235,7 +235,7 @@ export function Numbers({ items }) {
 
 function NextCase({ next }) {
   return <a className="case-next" href={`/work/${next.slug}/`}>
-    <span className="next-label">Next case study</span>
+    <span className="next-label">{next.label || 'Next case study'}</span>
     <span className="next-name">{next.name}</span>
     <span className="next-line">{next.line}</span>
     <span className="next-arrow" aria-hidden="true">→</span>

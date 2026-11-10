@@ -1,4 +1,5 @@
 import React from 'react';
+import './analytics.js';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 import App from './App.jsx';

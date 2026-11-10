@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef } from 'react';
 import { buildThread, threadPointAtY } from './threadGeometry.js';
 
 // Anchor to section-owned layout boxes, independent of the contents of each feature.
-const stationSelectors = ['#work .work-intro', '#workflow > .workflow-heading', '#connect .personal-invitation'];
+const stationSelectors = ['#work', '#workflow > .workflow-heading', '#connect .personal-invitation'];
 
 export default function JourneyThread({ enabled, reducedMotion, rootRef }) {
   const svgRef = useRef(null), pathRef = useRef(null), tipRef = useRef(null), stationsRef = useRef(null);
@@ -76,7 +76,7 @@ export default function JourneyThread({ enabled, reducedMotion, rootRef }) {
   if (!enabled) return null;
   return <svg className="journey-thread" ref={svgRef} aria-hidden="true" data-testid="journey-thread" preserveAspectRatio="none">
     <path ref={pathRef} className="journey-thread-ink" fill="none" strokeLinecap="round"/>
-    <g ref={stationsRef}>{['Superforms', 'A wider story', 'Your next piece'].map(name => <g key={name} className="thread-station"><circle r="7"/><circle className="station-core" r="2"/><text x="18" y="4">{name}</text></g>)}</g>
+    <g ref={stationsRef}>{['Who I am', 'The work', 'Your next piece'].map(name => <g key={name} className="thread-station"><circle r="7"/><circle className="station-core" r="2"/><text x="18" y="4">{name}</text></g>)}</g>
     <g ref={tipRef} className="thread-tip"><circle r="3"/><circle r="7" fill="none" strokeWidth="1" opacity=".3"/></g>
   </svg>;
 }

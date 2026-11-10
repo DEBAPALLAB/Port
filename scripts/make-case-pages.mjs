@@ -10,6 +10,13 @@ const pages = {
   poker: ['Poker Gods case study', 'Chips, buy-ins, blinds, betting and settlement for a home poker table.'],
   gdc: ['GDC Dibrugarh case study', 'The official web portal for Government Dental College, Dibrugarh.'],
   culprit: ['Culprit case study', 'A product concept for debugging real software by following the evidence.'],
+  'whatsapp-inbox': ['WhatsApp in India: the inbox became a billboard', 'An independent product study of how business promotion and one-time codes crowded WhatsApp in India, with six PRDs and a working prototype.'],
+  'prd-business-tab': ['Business tab PRD | WhatsApp in India', 'A product requirements document from the WhatsApp in India study: business tab. Independent proposal with a working prototype.'],
+  'prd-verification-inbox': ['Verification inbox PRD | WhatsApp in India', 'A product requirements document from the WhatsApp in India study: verification inbox. Independent proposal with a working prototype.'],
+  'prd-consent-centre': ['Consent centre PRD | WhatsApp in India', 'A product requirements document from the WhatsApp in India study: consent centre. Independent proposal with a working prototype.'],
+  'prd-unknown-callers': ['Unknown callers PRD | WhatsApp in India', 'A product requirements document from the WhatsApp in India study: unknown callers. Independent proposal with a working prototype.'],
+  'prd-account-takeover': ['Account takeover PRD | WhatsApp in India', 'A product requirements document from the WhatsApp in India study: account takeover. Independent proposal with a working prototype.'],
+  'prd-sender-economics': ['Sender economics PRD | WhatsApp in India', 'A product requirements document from the WhatsApp in India study: sender economics. Independent proposal with a working prototype.'],
   lucide: ['Lucide Tech case study', 'My studio’s site, built eight times: a lamp that lights its own headline, and a name shared with an icon library.'],
 };
 

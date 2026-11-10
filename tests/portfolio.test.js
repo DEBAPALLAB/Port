@@ -81,23 +81,15 @@ test('project filtering opens complete files and replay resets the journey', asy
   assert.equal(document.querySelector('.site-root').dataset.journeyPhase, 'idle');
 });
 
-test('Superforms opens, carries visitor intent across chapters, and replay resets the story', async () => {
+test('the introduction says who I am and points to the story and the work', () => {
   const view = render(React.createElement(App));
   fireEvent.click(view.getByRole('link', { name: 'Selected work' }));
-  assert.equal(document.querySelector('.superforms-chapter').dataset.open, 'false');
-  fireEvent.click(view.getByRole('button', { name: 'Open Superforms' }));
-  assert.equal(document.querySelector('.superforms-chapter').dataset.open, 'true');
-  fireEvent.click(view.getByRole('button', { name: 'A better interface' }));
-  assert.match(document.getElementById('range-title').textContent, /Different interfaces/);
-  assert.match(document.querySelector('.layer-story h3').textContent, /what matters/);
-  assert.equal(document.querySelector('.read-personal-story').getAttribute('href'), '/about/');
-  assert.equal(document.querySelector('.invitation-board'), null);
-  assert.equal(document.querySelector('.next-brief'), null);
-  fireEvent.click(view.getByRole('button', { name: 'Back to the first piece' }));
-  fireEvent.click(view.getByRole('link', { name: 'Selected work' }));
-  assert.equal(document.querySelector('.superforms-chapter').dataset.open, 'false');
-  assert.ok(view.getByRole('link', { name: 'Read my story' }));
-  assert.match(document.getElementById('range-title').textContent, /Different problems/);
+  assert.match(document.getElementById('work-title').textContent, /started with design/);
+  assert.equal(document.querySelectorAll('.about-slide').length, 4);
+  assert.equal(document.querySelector('.work-about .chapter-exit a[href="/about/"]').textContent.trim().startsWith('Read my story'), true);
+  assert.ok(document.querySelector('.work-about .chapter-exit a[href="#workflow"]'));
+  assert.equal(document.querySelector('.superforms-chapter'), null);
+  cleanup();
 });
 
 test('skip navigation opens a plain reading route without activating the cinematic mode', async () => {
@@ -107,33 +99,6 @@ test('skip navigation opens a plain reading route without activating the cinemat
   assert.equal(view.getByTestId('journey-content').hidden, false);
   assert.equal(view.queryByTestId('journey-thread'), null);
   cleanup();
-});
-
-test('the Superforms screens expand colour-coded decisions on hover and switch between builder and design', () => {
-  const view=render(React.createElement(App));
-  fireEvent.click(view.getByRole('link',{name:'Selected work'}));
-  assert.equal(document.querySelector('.form-lab'),null);
-  assert.match(document.querySelector('.editor-shot img').getAttribute('src'),/builder-build\.jpg$/);
-  let spots=document.querySelectorAll('.decision-spot');
-  assert.equal(spots.length,5);
-  assert.equal(document.querySelector('.decision-card'),null);
-  fireEvent.mouseEnter(spots[1]);
-  assert.equal(spots[1].dataset.active,'true');
-  assert.match(document.querySelector('.decision-card').textContent,/Why it exists/);
-  assert.equal(document.querySelector('.decision-card').dataset.kind,spots[1].dataset.kind);
-  fireEvent.mouseLeave(spots[1]);
-  assert.equal(document.querySelector('.decision-card'),null);
-  const guardrail=document.querySelector('.decision-legend li[data-kind="guardrail"]');
-  fireEvent.mouseEnter(guardrail);
-  assert.ok([...spots].every(spot=>spot.dataset.muted===String(spot.dataset.kind!=='guardrail')));
-  fireEvent.mouseLeave(guardrail);
-  fireEvent.click(view.getByRole('button',{name:/^Design/}));
-  assert.match(document.querySelector('.editor-shot img').getAttribute('src'),/builder-design\.jpg$/);
-  spots=document.querySelectorAll('.decision-spot');
-  fireEvent.click(spots[0]);
-  assert.match(document.querySelector('.decision-card strong').textContent,/Start from a direction/);
-  fireEvent.keyDown(spots[0],{key:'Escape'});
-  assert.equal(document.querySelector('.decision-card'),null);
 });
 
 test('hover pulls only the drawer, click opens its panel, and Escape closes it', async () => {
@@ -278,6 +243,6 @@ test('the case-study shelf links every project to its own case-study page', asyn
   const view = render(React.createElement(App));
   fireEvent.click(view.getByRole('link', { name: 'Case studies' }));
   const links = [...document.querySelectorAll('#cases .shelf-list a')].map(link => link.getAttribute('href'));
-  assert.deepEqual(links.sort(), ['comparefi', 'culprit', 'gdc', 'lucide', 'luman', 'mindspace', 'notaprompt', 'poker', 'superforms'].map(slug => `/work/${slug}/`));
+  assert.deepEqual(links.sort(), ['comparefi', 'culprit', 'gdc', 'lucide', 'luman', 'mindspace', 'notaprompt', 'poker', 'superforms', 'whatsapp-inbox'].map(slug => `/work/${slug}/`));
   cleanup();
 });

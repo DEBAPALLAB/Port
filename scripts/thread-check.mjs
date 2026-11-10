@@ -10,7 +10,7 @@ async function check(page) {
     const root = document.querySelector('.site-root');
     const path = document.querySelector('.journey-thread-ink');
     const stations = [...document.querySelectorAll('.thread-station')];
-    const selectors = ['#work .work-intro', '#workflow > .workflow-heading', '#connect .personal-invitation'];
+    const selectors = ['#work', '#workflow > .workflow-heading', '#connect .personal-invitation'];
     const expected = selectors.map(selector => {
       let node = root.querySelector(selector), top = -32;
       while (node && node !== root) { top += node.offsetTop; node = node.offsetParent; }

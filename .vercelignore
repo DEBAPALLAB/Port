@@ -1,0 +1,8 @@
+.taste-skill
+.shots
+.tmp
+social
+.openai
+node_modules
+*.log
+/*.pdf
